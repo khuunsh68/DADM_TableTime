@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".HomepageActivity">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="28dp"
+        android:fontFamily="sans-serif-black"
+        android:text="TableTime"
+        android:textSize="40sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Container 2 -->
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:text="Olá, Gonçalo!"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.14" />
+
+    <SearchView
+        android:id="@+id/searchView"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="148dp"
+        android:background="@drawable/corners_search_view"
+        android:backgroundTint="#DFDEDE"
+        android:iconifiedByDefault="false"
+        android:queryHint="Pesquisar restaurantes..."
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="480dp"
+        android:backgroundTint="@color/black"
+        android:text="Procurar"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Container 3 -->
+
+    <!-- Container 4 -->
+
+    <LinearLayout
+        android:id="@+id/restaurant1Container"
+        android:layout_width="350dp"
+        android:layout_height="80dp"
+        android:background="@drawable/corners_search_view"
+        android:backgroundTint="#D8D8D8"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.428">
+
+        <!-- Conteúdo do restaurante 1 -->
+
+        <ImageView
+            android:id="@+id/restaurant1Image"
+            android:layout_width="130dp"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/restaurante1" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/restaurant1Name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="La Maison"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/restaurant1Rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4.3"
+                android:textColor="#FFC107"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/restaurant2Container"
+        android:layout_width="350dp"
+        android:layout_height="80dp"
+        android:background="@drawable/corners_search_view"
+        android:backgroundTint="#D8D8D8"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.571">
+
+        <!-- Conteúdo do restaurante 2 -->
+        <ImageView
+            android:id="@+id/restaurant2Image"
+            android:layout_width="130dp"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/restaurante1" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/restaurant2Name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Divino Pratão"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/restaurant2Rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4.5"
+                android:textColor="#FFC107"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/restaurant3Container"
+        android:layout_width="350dp"
+        android:layout_height="80dp"
+        android:background="@drawable/corners_search_view"
+        android:backgroundTint="#D8D8D8"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.706">
+
+        <!-- Conteúdo do restaurante 3 -->
+        <ImageView
+            android:id="@+id/restaurant3Image"
+            android:layout_width="130dp"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/restaurante1" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/restaurant3Name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rangoo"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/restaurant3Rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4.7"
+                android:textColor="#FFC107"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/restaurant4Container"
+        android:layout_width="350dp"
+        android:layout_height="80dp"
+        android:background="@drawable/corners_search_view"
+        android:backgroundTint="#D8D8D8"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.841">
+
+        <!-- Conteúdo do restaurante 4 -->
+        <ImageView
+            android:id="@+id/restaurant4Image"
+            android:layout_width="130dp"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/restaurante1" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/restaurant4Name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cuccina de la nonna"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/restaurant4Rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4.2"
+                android:textColor="#FFC107"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="28dp"
+        android:background="@drawable/avatar_corner_border"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.045">
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
