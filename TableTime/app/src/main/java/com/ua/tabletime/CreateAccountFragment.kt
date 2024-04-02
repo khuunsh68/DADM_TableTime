@@ -59,6 +59,9 @@ class CreateAccountFragment : Fragment() {
         inputRepeatPassword = view.findViewById(R.id.editTextRepeatPassword)
         msgErro = view.findViewById(R.id.textViewErro)
 
+        // Inicialize o buttonLogin
+        buttonLogin = view.findViewById(R.id.buttonLogin)
+
         buttonCriarConta.setOnClickListener {
             val nome = inputNome.text.toString()
             val email = inputEmail.text.toString()
@@ -93,12 +96,14 @@ class CreateAccountFragment : Fragment() {
             }
         }
 
+        // Defina o OnClickListener para o buttonLogin
         buttonLogin.setOnClickListener {
             //IR PARA PÁGINA DE LOGIN
             startActivity(Intent(requireActivity(), LoginActivity::class.java))
         }
         return view
     }
+
 
     companion object {
         /**

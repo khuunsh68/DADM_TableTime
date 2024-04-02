@@ -49,17 +49,17 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(applicationContext, "A senha deve ter pelo menos 8 caracteres!", Toast.LENGTH_LONG).show()
             } else {
                 //LOGIN OK, ir para a página inicial
-                startActivity(Intent(this, ContaInformacoesActivity::class.java))
+                startActivity(Intent(this, HomepageActivity::class.java))
             }
         }
 
-        buttonCriarConta.setOnClickListener {
-            /*
-            val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            transaction.replace(R.id.fragment_container, CreateAccountFragment())
-            transaction.addToBackStack(null)
-            transaction.commit()
-             */
+        buttonLogin.setOnClickListener {
+            val fragment = CreateAccountFragment()
+            supportFragmentManager.beginTransaction().apply {
+                replace(android.R.id.content, fragment)
+                addToBackStack(null)
+                commit()
+            }
         }
     }
 
