@@ -12,16 +12,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TableTime"
         tools:targetApi="31">
-
-        <!-- Definindo a atividade principal -->
         <activity
-            android:name=".HomepageActivity"
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ContaInformacoesActivity"
+            android:exported="false" /> <!-- Definindo a atividade principal -->
+        <activity
+            android:name=".HomepageActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
