@@ -13,6 +13,8 @@ SERVER_ERROR = 500
 
 app = Flask(__name__)
 
+# o nome deste ficheiro tem que ser index.py por causa do vercel.json (também podemos mudar o nome lá)
+
 @app.route('/createUtilizador/', methods=['POST'])
 def createUtilizador():
     conn = psycopg2.connect("host=aid.estgoh.ipc.pt dbname=db109180113331 user=a109180113331 password=grupo3_dadm2024")
