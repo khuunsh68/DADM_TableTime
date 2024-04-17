@@ -23,8 +23,8 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
 
-        buttonLogin = findViewById(R.id.buttonCriarConta)
-        buttonCriarConta = findViewById(R.id.buttonLogin)
+        buttonLogin = findViewById(R.id.buttonLogin)
+        buttonCriarConta = findViewById(R.id.buttonCriarConta)
         inputEmail = findViewById(R.id.editTextEmail)
         inputPassword = findViewById(R.id.editTextPassword)
         msgErro = findViewById(R.id.textViewErro)
@@ -53,10 +53,10 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        buttonLogin.setOnClickListener {
+        buttonCriarConta.setOnClickListener {
             val fragment = CreateAccountFragment()
             supportFragmentManager.beginTransaction().apply {
-                replace(android.R.id.content, fragment)
+                replace(R.id.fragmentContainer, fragment)
                 addToBackStack(null)
                 commit()
             }

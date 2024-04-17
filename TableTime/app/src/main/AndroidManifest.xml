@@ -23,7 +23,7 @@
         </activity>
         <activity
             android:name=".ContaInformacoesActivity"
-            android:exported="false" /> <!-- Definindo a atividade principal -->
+            android:exported="false" />
         <activity
             android:name=".HomepageActivity"
             android:exported="false" />

@@ -1,0 +1,70 @@
+<!-- item_restaurant.xml -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="120dp"
+    android:background="@drawable/corners_search_view"
+    android:layout_marginBottom="15dp"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/imageViewRestaurant"
+        android:layout_width="112dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/restaurante1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewRestaurantName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/textViewRestaurantRating"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/imageViewRestaurant"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/textViewRestaurantRating"
+        android:layout_width="28dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_marginLeft="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/textViewRestaurantCuisine"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/imageViewRestaurant"
+        app:layout_constraintTop_toBottomOf="@+id/textViewRestaurantName" />
+
+    <ImageView
+        android:id="@+id/imageViewStar"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/rate"
+        app:layout_constraintBottom_toTopOf="@+id/textViewRestaurantCuisine"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/textViewRestaurantRating"
+        app:layout_constraintTop_toBottomOf="@+id/textViewRestaurantName"
+        app:layout_constraintVertical_bias="0.25" />
+
+    <TextView
+        android:id="@+id/textViewRestaurantCuisine"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageViewRestaurant"
+        app:layout_constraintTop_toBottomOf="@+id/textViewRestaurantRating" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
