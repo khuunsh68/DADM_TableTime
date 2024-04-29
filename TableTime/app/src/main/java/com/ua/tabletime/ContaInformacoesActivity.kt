@@ -12,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 class ContaInformacoesActivity : AppCompatActivity() {
 
     lateinit var buttonTerminarSessao: Button
+    lateinit var textTitulo: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,11 +21,9 @@ class ContaInformacoesActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_conta_informacoes)
 
-        // Obtendo referência ao LinearLayout dentro do ScrollView
         val containerReservas = findViewById<LinearLayout>(R.id.containerReservas)
 
-        // Adicionando manualmente os cartões de reserva
-        for (i in 1..5) {//5 cartões exemplo
+        for (i in 1..5) {
             val cardView = layoutInflater.inflate(R.layout.card_reserva, null)
 
             val textViewNomeReserva = cardView.findViewById<TextView>(R.id.textViewNomeRestaurante)
@@ -41,8 +40,14 @@ class ContaInformacoesActivity : AppCompatActivity() {
         }
 
         buttonTerminarSessao = findViewById(R.id.buttonTerminarSessao)
+        textTitulo = findViewById(R.id.textTitulo)
         buttonTerminarSessao.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
         }
+
+        textTitulo.setOnClickListener {
+            startActivity(Intent(this, HomepageActivity::class.java))
+        }
+
     }
 }

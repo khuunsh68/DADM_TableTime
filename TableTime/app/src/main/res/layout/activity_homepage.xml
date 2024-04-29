@@ -7,86 +7,92 @@
     android:layout_height="match_parent"
     tools:context=".HomepageActivity">
 
+    <!-- Container 2 -->
+
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="28dp"
         android:fontFamily="sans-serif-black"
         android:text="TableTime"
         android:textSize="40sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.127"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Container 2 -->
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.041" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="28dp"
         android:text="Olá, Gonçalo!"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.085"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.139" />
+
+    <!-- Container 3 -->
+
+    <!-- Container 4 -->
 
     <SearchView
         android:id="@+id/searchView"
         android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="148dp"
         android:background="@drawable/corners_search_view"
         android:backgroundTint="#DFDEDE"
         android:iconifiedByDefault="false"
         android:queryHint="Pesquisar restaurantes..."
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.203" />
 
     <Button
         android:id="@+id/buttonSearch"
         android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="480dp"
         android:backgroundTint="@color/black"
         android:text="PROCURAR"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.491"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <!-- Container 3 -->
-
-    <!-- Container 4 -->
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.273" />
 
     <LinearLayout
         android:id="@+id/btnProfilePage"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginEnd="28dp"
         android:background="@drawable/avatar_corner_border"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.922"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.045">
+        app:layout_constraintVertical_bias="0.041">
 
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewRestaurants"
-        android:layout_width="352dp"
-        android:layout_height="410dp"
+        android:layout_width="350dp"
+        android:layout_height="457dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.508"
+        app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.884" />
+        app:layout_constraintVertical_bias="0.908" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
