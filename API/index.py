@@ -1,5 +1,16 @@
-from flask import Flask, request, jsonify
+#from flask import Flask, request, jsonify
+#import psycopg2
+
+import os
+from datetime import datetime, timedelta
+from functools import wraps
+
+import jwt
 import psycopg2
+from flask import Flask, jsonify, request
+
+
+import db
 
 NOT_FOUND_CODE = 401
 OK_CODE = 200
@@ -14,6 +25,132 @@ SERVER_ERROR = 500
 app = Flask(__name__)
 
 # o nome deste ficheiro tem que ser index.py por causa do vercel.json (também podemos mudar o nome lá)
+
+@app.route('/', methods = ["GET"])
+def home():
+    return "Welcome to API!"
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    if "email" not in data or "password" not in data:
+        return jsonify({"error": "invalid parameters"}), BAD_REQUEST_CODE
+
+    user = db.login(data['email'], data["password"])
+
+    if user is None:
+        return jsonify({"error": "Check credentials"}), NOT_FOUND_CODE
+
+    token = jwt.encode(
+        {'user_id': user['id'], 'exp': datetime.utcnow() + timedelta(minutes=5)}, app.config['SECRET_KEY'], 'HS256')
+
+    user["token"] = token.decode('UTF-8')
+    #user["token"] = token
+    return jsonify(user), OK_CODE
+
+@app.route("/register", methods=['POST'])
+def register():
+    data = request.get_json()
+
+    if "nome" not in data or "email" not in data or "password" not in data:
+        return jsonify({"error": "invalid parameters"}), BAD_REQUEST_CODE
+
+    if (db.user_exists(data)):
+        return jsonify({"error": "user already exists"}), BAD_REQUEST_CODE
+
+    user = db.add_user(data)
+
+    return jsonify(user), SUCCESS_CODE
+
+def auth_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if "Authorization" not in request.headers:
+            return jsonify({"error": "Token not provided"}), FORBIDDEN_CODE
+
+        token = request.headers['Authorization']
+        # Remove Bearer from token
+        token = token.split(' ')[1]
+
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            return jsonify({"error": "Token expirado", "expired": True}), UNAUTHORIZED_CODE
+        except jwt.InvalidTokenError:
+            return jsonify({"error": "Token inválido"}), FORBIDDEN_CODE
+
+        request.user = db.get_user(data['user_id'])
+
+        return f(*args, **kwargs)
+
+    return decorated
+
+
+@app.route('/getAllRestaurants', methods=['GET'])
+@auth_required
+def get_all_restaurants():
+    restaurants = db.get_all_restaurants()
+    return jsonify(restaurants), OK_CODE
+
+
+@app.route('/restaurant/<string:restaurant_name>', methods=['GET'])
+@auth_required
+def get_restaurant(restaurant_name):
+    seq_id = request.args.get("seq_id") or 1
+    restaurant = db.get_restaurant(restaurant_name, seq_id)
+    if restaurant is None:
+        return jsonify({"error": "No content"}), NO_CONTENT_CODE
+    return jsonify(restaurant), OK_CODE
+
+
+@app.route('/reserva/<int:user_id>', methods=['GET'])
+@auth_required
+def get_all_reservas_from_user(user_id):
+    seq_id = request.args.get("seq_id") or 1
+    reserva = db.get_all_reservas_from_user(user_id, seq_id)
+    if reserva is None:
+        return jsonify({"error": "No content"}), NO_CONTENT_CODE
+    return jsonify(reserva), OK_CODE
+
+
+@app.route('/reserva/verificardDisponibilidade/<int:restaurant_id>, <datetime:data_reserva>, <time:horario>, <int:quantidade>', methods=['GET'])
+@auth_required
+def verificar_disponibilidade_reserva(restaurant_id, data_reserva, horario, quantidade):
+    seq_id = request.args.get("seq_id") or 1
+    reserva = db.verificar_disponibilidade_reserva(restaurant_id, data_reserva, horario, quantidade, seq_id)
+    if reserva is None:
+        return jsonify({"disponivel": "horario disponivel"}), OK_CODE
+    return jsonify(reserva), UNAUTHORIZED_CODE
+
+
+
+# ----------------------------------------------------------------
+@app.route("/matchs/addReserva", methods=['POST'])
+@auth_required # antes de fazer esta operação primeiro vê se o token é válido 
+def add_reserva():
+    data = request.get_json()
+
+    if "tournament" not in data or "date_match" not in data or "player1" not in data or "player2" not in data:
+        return jsonify({"error": "invalid parameters"}), BAD_REQUEST_CODE
+
+    matchs = db.add_matchs(data, request.user['id'])
+
+    return jsonify(matchs), SUCCESS_CODE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @app.route('/createUtilizador/', methods=['POST'])
 def createUtilizador():

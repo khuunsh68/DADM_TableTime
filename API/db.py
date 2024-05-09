@@ -3,15 +3,20 @@ from re import I
 
 import psycopg2
 
+hostname = "aid.estgoh.ipc.pt"
+database_name = "db109180113331"
+username = "a109180113331"
+palavra_passe = "grupo3_dadm2024"
+
 
 def get_connection():
-    return psycopg2.connect(host=os.environ.get("DATABASE_HOST"), database = os.environ.get("DATABASE_NAME"), user=os.environ.get("DATABASE_USER"), password = os.environ.get("PASSWORD"))
+    return psycopg2.connect(host=hostname, database = database_name, user=username, password = palavra_passe)
 
 def user_exists(user):
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT COUNT(*) FROM users WHERE username = %s", [user["username"]])
+                cur.execute("SELECT COUNT(*) FROM utilizador WHERE email = %s", [user["email"]])
                 count = cur.fetchone()[0]
     except (Exception, psycopg2.Error) as error :
         print ("Error while connecting to PostgreSQL", error)
@@ -19,21 +24,21 @@ def user_exists(user):
         if(conn):
             cur.close()
             conn.close()
-    return count > 0
+        return count > 0
 
 
-def login(username, password):
+def login(email, password):
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT * FROM users WHERE username = %s AND password = crypt(%s, password)", [username, password])
+                cur.execute("SELECT * FROM utilizador WHERE email = %s AND password = crypt(%s, password)", [email, password])
                 user_tuple = cur.fetchone()
                 user = None
                 if user_tuple is None:
                     return None
                 user = {
                     "id": user_tuple[0],
-                    "username": user_tuple[1],
+                    "email": user_tuple[1],
                 }
     except (Exception, psycopg2.Error) as error :
         print ("Error while connecting to PostgreSQL", error)
@@ -47,11 +52,13 @@ def get_user(user_id):
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT * FROM users WHERE id = %s", [user_id])
+                cur.execute("SELECT * FROM utilizador WHERE id = %s", [user_id])
                 user_tuple = cur.fetchone()
+                if user_tuple is None:
+                    return None
                 user = {
                         "id": user_tuple[0],
-                        "username": user_tuple[1],
+                        "email": user_tuple[1],
                     }
     except (Exception, psycopg2.Error) as error :
         print ("Error while connecting to PostgreSQL", error)
@@ -61,17 +68,17 @@ def get_user(user_id):
             conn.close()
         return user
 
-def add_user(user):
+def add_user(nome, email, password):
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("INSERT INTO users (username, password) VALUES (%s, crypt(%s, gen_salt('bf'))) RETURNING *",  # Encriptado utilizando algoritmo blow fish
-                            [user["username"], user["password"]])
+                cur.execute("INSERT INTO utilizador (nome, email, password) VALUES (%s, %s, crypt(%s, gen_salt('bf'))) RETURNING *", [nome, email, password])
                 conn.commit()
                 user_tuple = cur.fetchone()
                 user = {
                         "id": user_tuple[0],
-                        "username": user_tuple[1],
+                        "nome": user_tuple[1],
+                        "email": user_tuple[2]
                     }
     except (Exception, psycopg2.Error) as error :
         print ("Error while connecting to PostgreSQL", error)
@@ -81,27 +88,24 @@ def add_user(user):
             conn.close()
         return user
 
-def get_match(match_id, seq_id):
+
+def get_all_restaurants():
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                #add new_data validation
-                cur.execute("SELECT * FROM match where id = %s AND new_data > %s", [match_id, seq_id])
-                match_tuple = cur.fetchone()
-                match = None
-                if match_tuple is None:
+                cur.execute("SELECT * FROM restaurante")
+                restaurant_tuple = cur.fetchone()
+                if restaurant_tuple is None:
                     return None
-                match = {
-                        "id": match_tuple[0],
-                        "tournament": match_tuple[1],
-                        "date_match": match_tuple[2].strftime("%d/%m/%Y"),
-                        "player1": match_tuple[3],
-                        "player2": match_tuple[4],
-                        "isover": match_tuple[5],
-                        "winner": match_tuple[6],
-                        "users_id": match_tuple[7],
-                        "new_data": match_tuple[8],
-                        "score": match_tuple[9],
+                restaurant = {
+                        "id": restaurant_tuple[0],
+                        "nome": restaurant_tuple[1],
+                        "endereco": restaurant_tuple[2],
+                        "horario_abertura": restaurant_tuple[3],
+                        "horario_encerramento": restaurant_tuple[4],
+                        "avaliacao": restaurant_tuple[5],
+                        "imagem_url": restaurant_tuple[6],
+                        "tipo_cozinha": restaurant_tuple[7]
                     }
     except (Exception, psycopg2.Error) as error :
         print ("Error while connecting to PostgreSQL", error)
@@ -109,23 +113,26 @@ def get_match(match_id, seq_id):
         if(conn):
             cur.close()
             conn.close()
-        return match
+        return restaurant
 
 
-def get_score(match_id, seq_id):
+def get_restaurant(name_restaurant):
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT score, new_data, isover, winner FROM match where id = %s AND new_data > %s", [match_id, seq_id])
-                match_tuple = cur.fetchone()
-                match = None
-                if match_tuple is None:
+                cur.execute("SELECT * FROM restaurante WHERE nome = %s", [name_restaurant])
+                restaurant_tuple = cur.fetchone()
+                if restaurant_tuple is None:
                     return None
-                match = {
-                        "score": match_tuple[0],
-                        "new_data": match_tuple[1],
-                        "isover": match_tuple[2],
-                        "winner": match_tuple[3],
+                restaurant = {
+                        "id": restaurant_tuple[0],
+                        "nome": restaurant_tuple[1],
+                        "endereco": restaurant_tuple[2],
+                        "horario_abertura": restaurant_tuple[3],
+                        "horario_encerramento": restaurant_tuple[4],
+                        "avaliacao": restaurant_tuple[5],
+                        "imagem_url": restaurant_tuple[6],
+                        "tipo_cozinha": restaurant_tuple[7]
                     }
     except (Exception, psycopg2.Error) as error :
         print ("Error while connecting to PostgreSQL", error)
@@ -133,75 +140,88 @@ def get_score(match_id, seq_id):
         if(conn):
             cur.close()
             conn.close()
-        return match
+        return restaurant
 
-def get_all_matchs():
+
+def get_all_reservas_from_user(user):
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT * FROM match order by date_match desc, id desc")
-                matchs = []
-                for match_tuple in cur.fetchall():
-                    match = {
-                        "id": match_tuple[0],
-                        "tournament": match_tuple[1],
-                        "date_match": match_tuple[2].strftime("%d/%m/%Y"),
-                        "player1": match_tuple[3],
-                        "player2": match_tuple[4],
-                        "isover": match_tuple[5],
-                        "winner": match_tuple[6],
-                        "users_id": match_tuple[7],
-                        "new_data": match_tuple[8],
-                        "score": match_tuple[9],
+                cur.execute("SELECT * FROM reservas WHERE id_utilizador = %s", user["id"])
+                reserva_tuple = cur.fetchone()
+                if reserva_tuple is None:
+                    return None
+                reserva = {
+                        "id": reserva_tuple[0],
+                        "id_utilizador": reserva_tuple[1],
+                        "id_restaurante": reserva_tuple[2],
+                        "data_reserva": reserva_tuple[3],
+                        "horario": reserva_tuple[4],
+                        "quantidade": reserva_tuple[5]
                     }
-                    matchs.append(match)
     except (Exception, psycopg2.Error) as error :
         print ("Error while connecting to PostgreSQL", error)
     finally:
         if(conn):
             cur.close()
             conn.close()
-        return matchs
-    
+        return reserva
 
-def add_matchs(match, user_id):
+
+def verificar_disponibilidade_reserva(restaurant, data_reserva, horario, quantidade):
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("INSERT INTO match (tournament, date_match, player1, player2, isover, users_id) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *", [match["tournament"], match["date_match"], match["player1"], match["player2"], 'false', user_id])
+                cur.execute("SELECT * FROM reserva WHERE id_restaurante=%s AND data_reserva=%s AND horario=%s AND quantidade=%s", [restaurant["id"], data_reserva, horario, quantidade])
+                reserva_tuple = cur.fetchone()
+                if reserva_tuple is None:
+                    return None
+                reserva = {
+                        "id": reserva_tuple[0],
+                        "id_utilizador": reserva_tuple[1],
+                        "id_restaurante": reserva_tuple[2],
+                        "data_reserva": reserva_tuple[3],
+                        "horario": reserva_tuple[4],
+                        "quantidade": reserva_tuple[5]
+                    }
+    except (Exception, psycopg2.Error) as error :
+        print ("Error while connecting to PostgreSQL", error)
+    finally:
+        if(conn):
+            cur.close()
+            conn.close()
+        return reserva
+
+
+def add_reserva(user, restaurant, data_reserva, horario, quantidade):
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("INSERT INTO reserva (id_utilizador, id_restaurant, data_reserva, horario, quantidade) VALUES (%s, %s, %s, %s, %s) RETURNING *", [user["id"], restaurant["id"], data_reserva, horario, quantidade])
                 conn.commit()
-                match = None
-                match = cur.fetchone()
-                if match is None:
-                    return None
-
-                match = {
-                        "id": match[0],
-                        "tournament": match[1],
-                        "date_match": match[2].strftime("%d/%m/%Y, %H:%M:%S"),
-                        "player1": match[3],
-                        "player2": match[4],
-                        "isover": match[5],
-                        "winner": match[6],
-                        "users_id": match[7],
-                        "new_data": match[8],
-                        "score": match[9],
+                reserva_tuple = cur.fetchone()
+                reserva = {
+                        "id": reserva_tuple[0],
+                        "id_utilizador": reserva_tuple[1],
+                        "id_restaurante": reserva_tuple[2],
+                        "data_reserva": reserva_tuple[3],
+                        "horario": reserva_tuple[4],
+                        "quantidade": reserva_tuple[5]
                     }
-                return match
     except (Exception, psycopg2.Error) as error :
         print ("Error while connecting to PostgreSQL", error)
     finally:
         if(conn):
             cur.close()
             conn.close()
+        return reserva
 
-def remove_match(match_id, user_id):
+
+def remove_reserva(reserva):
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("DELETE FROM score s WHERE match_id in (select m.id from score s, match m where s.match_id = m.id and m.id = %s AND m.users_id = %s)", [match_id, user_id])
-                conn.commit()
-                cur.execute("DELETE FROM match m WHERE m.id = %s AND m.users_id = %s RETURNING *", [match_id, user_id])
+                cur.execute("DELETE FROM reserva WHERE id=%s RETURNING *", [reserva["id"]])
                 conn.commit()
                 var = None
                 var = len(cur.fetchall()) > 0
@@ -211,75 +231,5 @@ def remove_match(match_id, user_id):
         if(conn):
             cur.close()
             conn.close()
-        return var    
+        return var  
 
-def update_match(match_id, match_in, user_id):
-    try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("UPDATE match SET tournament = %s, player1 = %s, player2 = %s, date_match = %s, new_data = new_data + 1 WHERE id = %s AND users_id = %s AND isover = 'false' RETURNING *", [match_in["tournament"], match_in["player1"], match_in["player2"], match_in["date_match"], match_id, user_id])
-                conn.commit()
-                match = cur.fetchone()
-                if match is None:
-                    return None
-                match = {
-                        "id": match[0],
-                        "tournament": match[1],
-                        "date_match": match[2].strftime("%d/%m/%Y, %H:%M:%S"),
-                        "player1": match[3],
-                        "player2": match[4],
-                        "isover": match[5],
-                        "winner": match[6],
-                        "users_id": match[7],
-                        "new_data": match[8],
-                        "score": match[9]
-                    }
-    except (Exception, psycopg2.Error) as error :
-        print ("Error while connecting to PostgreSQL", error)
-    finally:
-        if(conn):
-            cur.close()
-            conn.close()
-        return match
-
-def update_score(match_id, match_in, user_id):
-    try:
-        with get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("SELECT isover from match WHERE id = %s AND isover = 'true' AND users_id = %s", [match_id, user_id])
-                conn.commit()
-                res = cur.fetchone()
-                if res is not None:
-                    match = -1
-                    return
-                cur.execute("UPDATE match SET score = %s, new_data = new_data + 1 WHERE id = %s AND users_id = %s AND isover = 'false' RETURNING *", [match_in["score"], match_id, user_id])
-                conn.commit()
-                print(type(match_in))
-                if "winner" in match_in:
-                    cur.execute("UPDATE match SET winner = %s, new_data = new_data + 1 WHERE id = %s AND users_id = %s AND isover = 'false' RETURNING *", [match_in["winner"], match_id, user_id])
-                    conn.commit()
-                if "isover" in match_in:
-                    cur.execute("UPDATE match SET isover = %s, new_data = new_data + 1 WHERE id = %s AND users_id = %s RETURNING *", [match_in["isover"], match_id, user_id])
-                    conn.commit()
-                match = cur.fetchone()
-                if match is None:
-                    return None
-                match = {
-                        "id": match[0],
-                        "tournament": match[1],
-                        "date_match": match[2].strftime("%d/%m/%Y, %H:%M:%S"),
-                        "player1": match[3],
-                        "player2": match[4],
-                        "isover": match[5],
-                        "winner": match[6],
-                        "users_id": match[7],
-                        "new_data": match[8],
-                        "score": match[9]
-                    }
-    except (Exception, psycopg2.Error) as error :
-        print ("Error while connecting to PostgreSQL", error)
-    finally:
-        if(conn):
-            cur.close()
-            conn.close()
-        return match

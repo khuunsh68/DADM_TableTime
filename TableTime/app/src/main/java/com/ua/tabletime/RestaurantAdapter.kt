@@ -27,7 +27,7 @@ class RestaurantAdapter(private var restaurantList: List<Restaurant>) :
         holder.imageViewRestaurant.setImageResource(currentRestaurant.imageResource)
         holder.textViewRestaurantName.text = currentRestaurant.name
         holder.textViewRestaurantCuisine.text = currentRestaurant.cuisineType
-        holder.textViewRestaurantRating.text = currentRestaurant.rating.toString()
+        holder.textViewRestaurantRating.text = currentRestaurant.avaliacao.toString()
     }
 
     override fun getItemCount() = restaurantList.size
