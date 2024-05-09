@@ -97,26 +97,26 @@ def get_all_restaurants():
         with get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute("SELECT * FROM restaurante")
-                restaurant_tuple = cur.fetchone()
-                if restaurant_tuple is None:
-                    return None
-                restaurant = {
+                restaurants = []
+                for restaurant_tuple in cur.fetchall():
+                    restaurant = {
                         "id": restaurant_tuple[0],
                         "nome": restaurant_tuple[1],
                         "endereco": restaurant_tuple[2],
-                        "horario_abertura": restaurant_tuple[3],
-                        "horario_encerramento": restaurant_tuple[4],
+                        "horario_abertura": restaurant_tuple[3].strftime("%H:%M"),
+                        "horario_encerramento": restaurant_tuple[4].strftime("%H:%M"),
                         "avaliacao": restaurant_tuple[5],
                         "imagem_url": restaurant_tuple[6],
                         "tipo_cozinha": restaurant_tuple[7]
                     }
+                    restaurants.append(restaurant)      
     except (Exception, psycopg2.Error) as error :
         print ("Error while connecting to PostgreSQL", error)
     finally:
         if(conn):
             cur.close()
             conn.close()
-        return restaurant
+        return restaurants
 
 
 def get_restaurant(name_restaurant):
@@ -131,8 +131,8 @@ def get_restaurant(name_restaurant):
                         "id": restaurant_tuple[0],
                         "nome": restaurant_tuple[1],
                         "endereco": restaurant_tuple[2],
-                        "horario_abertura": restaurant_tuple[3],
-                        "horario_encerramento": restaurant_tuple[4],
+                        "horario_abertura": restaurant_tuple[3].strftime("%H:%M"),
+                        "horario_encerramento": restaurant_tuple[4].strftime("%H:%M"),
                         "avaliacao": restaurant_tuple[5],
                         "imagem_url": restaurant_tuple[6],
                         "tipo_cozinha": restaurant_tuple[7]
@@ -146,29 +146,29 @@ def get_restaurant(name_restaurant):
         return restaurant
 
 
-def get_all_reservas_from_user(user):
+def get_all_reservas_from_user(user_id):
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT * FROM reservas WHERE id_utilizador = %s", user["id"])
-                reserva_tuple = cur.fetchone()
-                if reserva_tuple is None:
-                    return None
-                reserva = {
+                cur.execute("SELECT * FROM reserva WHERE id_utilizador = %s", [user_id])
+                reservas = []
+                for reserva_tuple in cur.fetchall():
+                    reserva = {
                         "id": reserva_tuple[0],
                         "id_utilizador": reserva_tuple[1],
                         "id_restaurante": reserva_tuple[2],
-                        "data_reserva": reserva_tuple[3],
-                        "horario": reserva_tuple[4],
+                        "data_reserva": reserva_tuple[3].strftime("%d/%m/%Y"),
+                        "horario": reserva_tuple[4].strftime("%H:%M"),
                         "quantidade": reserva_tuple[5]
                     }
+                    reservas.append(reserva)
     except (Exception, psycopg2.Error) as error :
         print ("Error while connecting to PostgreSQL", error)
     finally:
         if(conn):
             cur.close()
             conn.close()
-        return reserva
+        return reservas
 
 
 def verificar_disponibilidade_reserva(restaurant, data_reserva, horario, quantidade):

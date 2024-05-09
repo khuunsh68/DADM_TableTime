@@ -39,7 +39,7 @@ def login():
         return jsonify({"error": "Check credentials"}), NOT_FOUND_CODE
 
     token = jwt.encode(
-        {'user_id': user["id"], 'exp': datetime.utcnow() + timedelta(minutes=5)}, "XXXX", 'HS256')
+        {'user_id': user["id"], 'exp': datetime.utcnow() + timedelta(minutes=10)}, "XXXX", 'HS256')
 
     #user["token"] = token.decode('UTF-8')
     user["token"] = token
@@ -59,6 +59,8 @@ def register():
 
     return jsonify(user), SUCCESS_CODE
 
+
+
 def auth_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -70,7 +72,7 @@ def auth_required(f):
         token = token.split(' ')[1]
 
         try:
-            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            data = jwt.decode(token, "XXXX", algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
             return jsonify({"error": "Token expirado", "expired": True}), UNAUTHORIZED_CODE
         except jwt.InvalidTokenError:
@@ -90,21 +92,19 @@ def get_all_restaurants():
     return jsonify(restaurants), OK_CODE
 
 
-@app.route('/restaurant/<string:restaurant_name>', methods=['GET'])
+@app.route('/get_restaurant/<string:restaurant_name>', methods=['GET'])
 @auth_required
 def get_restaurant(restaurant_name):
-    seq_id = request.args.get("seq_id") or 1
-    restaurant = db.get_restaurant(restaurant_name, seq_id)
+    restaurant = db.get_restaurant(restaurant_name)
     if restaurant is None:
         return jsonify({"error": "No content"}), NO_CONTENT_CODE
     return jsonify(restaurant), OK_CODE
 
 
-@app.route('/reserva/<int:user_id>', methods=['GET'])
+@app.route('/reserva/get_all_reservas_from_user/<int:user_id>', methods=['GET'])
 @auth_required
 def get_all_reservas_from_user(user_id):
-    seq_id = request.args.get("seq_id") or 1
-    reserva = db.get_all_reservas_from_user(user_id, seq_id)
+    reserva = db.get_all_reservas_from_user(user_id)
     if reserva is None:
         return jsonify({"error": "No content"}), NO_CONTENT_CODE
     return jsonify(reserva), OK_CODE
