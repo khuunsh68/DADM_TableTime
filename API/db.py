@@ -72,7 +72,9 @@ def add_user(nome, email, password):
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("INSERT INTO utilizador (nome, email, password) VALUES (%s, %s, crypt(%s, gen_salt('bf'))) RETURNING *", [nome, email, password])
+                query = "INSERT INTO utilizador (nome, email, password) VALUES (%s, %s, crypt(%s, gen_salt('bf'))) RETURNING *"
+                print(query)
+                cur.execute(query, [nome, email, password])
                 conn.commit()
                 user_tuple = cur.fetchone()
                 user = {
@@ -80,6 +82,7 @@ def add_user(nome, email, password):
                         "nome": user_tuple[1],
                         "email": user_tuple[2]
                     }
+                print(user)
     except (Exception, psycopg2.Error) as error :
         print ("Error while connecting to PostgreSQL", error)
     finally:
