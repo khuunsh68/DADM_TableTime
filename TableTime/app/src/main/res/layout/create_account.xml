@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LoginActivity">
+    tools:context=".CreateAccount">
 
     <TextView
         android:id="@+id/textTitulo"
@@ -60,7 +60,7 @@
 
     <Button
         android:id="@+id/buttonLogin"
-        android:layout_width="299dp"
+        android:layout_width="300dp"
         android:layout_height="46dp"
         android:layout_marginTop="94dp"
         android:backgroundTint="#000000"
@@ -105,8 +105,8 @@
         android:layout_height="50dp"
         android:layout_marginTop="128dp"
         android:ems="10"
+        android:hint="Nome"
         android:inputType="text"
-        android:text="Nome"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
@@ -131,7 +131,7 @@
         android:layout_height="50dp"
         android:layout_marginTop="308dp"
         android:ems="10"
-        android:hint="Repita password"
+        android:hint="Repetir password"
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"

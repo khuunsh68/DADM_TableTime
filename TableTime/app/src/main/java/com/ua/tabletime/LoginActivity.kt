@@ -1,10 +1,8 @@
 package com.ua.tabletime
 
-import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.telecom.Call
 import android.util.Patterns
 import android.widget.Button
 import android.widget.EditText
@@ -23,18 +21,17 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-
+        // Inicializando as views
         buttonLogin = findViewById(R.id.buttonLogin)
         buttonCriarConta = findViewById(R.id.buttonCriarConta)
         inputEmail = findViewById(R.id.editTextEmail)
         inputPassword = findViewById(R.id.editTextPassword)
         msgErro = findViewById(R.id.textViewErro)
 
+        // Configurando o OnClickListener para o botão de login
         buttonLogin.setOnClickListener {
             val email = inputEmail.text.toString()
             val password = inputPassword.text.toString()
-            println(email)
-            println(password)
 
             if (email.isBlank()) {
                 msgErro.text = "Campo de email vazio!"
@@ -55,15 +52,11 @@ class LoginActivity : AppCompatActivity() {
         }
 
         buttonCriarConta.setOnClickListener {
-            val fragment = CreateAccountFragment()
-            supportFragmentManager.beginTransaction().apply {
-                replace(R.id.fragmentContainer, fragment)
-                addToBackStack(null)
-                commit()
-            }
+            startActivity(Intent(this, CreateAccount::class.java))
         }
     }
 
+    // Funções auxiliares para validar email e senha
     private fun isValidEmail(email: String): Boolean {
         return Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }

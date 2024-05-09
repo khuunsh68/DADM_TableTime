@@ -27,6 +27,9 @@
         <activity
             android:name=".HomepageActivity"
             android:exported="false" />
+        <activity
+            android:name=".CreateAccount"
+            android:exported="false" />
     </application>
 
 </manifest>
