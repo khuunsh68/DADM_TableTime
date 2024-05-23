@@ -23,7 +23,7 @@ app = Flask(__name__)
 
 # o nome deste ficheiro tem que ser index.py por causa do vercel.json (também podemos mudar o nome lá)
 
-@app.route('/home/', methods = ["GET", "POST"])
+@app.route('/', methods = ["GET", "POST"])
 def home():
     return "Welcome to API!"
 
@@ -47,17 +47,20 @@ def login():
 
 @app.route("/register", methods=['POST'])
 def register():
-    data = request.get_json()
+    if request.method == 'POST':
+        data = request.get_json()
 
-    if "nome" not in data or "email" not in data or "password" not in data:
-        return jsonify({"error": "invalid parameters"}), BAD_REQUEST_CODE
+        if "nome" not in data or "email" not in data or "password" not in data:
+            return jsonify({"error": "invalid parameters"}), BAD_REQUEST_CODE
 
-    if (db.user_exists(data)):
-        return jsonify({"error": "user already exists"}), BAD_REQUEST_CODE
+        if (db.user_exists(data)):
+            return jsonify({"error": "user already exists"}), BAD_REQUEST_CODE
 
-    user = db.add_user(data["nome"], data["email"], data["password"])
+        user = db.add_user(data["nome"], data["email"], data["password"])
 
-    return jsonify(user), SUCCESS_CODE
+        return jsonify(user), SUCCESS_CODE
+    else:
+        return jsonify({"error": "method not allowed"}), 403
 
 
 
