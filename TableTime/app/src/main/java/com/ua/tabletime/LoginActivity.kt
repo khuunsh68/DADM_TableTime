@@ -1,6 +1,7 @@
 package com.ua.tabletime
 
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,7 +16,6 @@ import com.android.volley.toolbox.Volley
 import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
-
     lateinit var buttonLogin: Button
     lateinit var buttonCriarConta: Button
     lateinit var inputEmail: EditText
@@ -84,13 +84,15 @@ class LoginActivity : AppCompatActivity() {
                 buttonLogin.isEnabled = true // Reativa o botão
                 Toast.makeText(this, "Login feito com sucesso!", Toast.LENGTH_LONG).show()
 
-                // Aqui, você pode salvar o token JWT se necessário
                 val token = response.getString("token")
-                Log.d("Token", token)
-                // Salvar o token em SharedPreferences ou outro método de armazenamento seguro
+                val userId = response.getInt("id")
+                val userName = response.getString("nome")
+
                 val sharedPref = getSharedPreferences("appPrefs", MODE_PRIVATE)
                 val editor = sharedPref.edit()
                 editor.putString("jwt_token", token)
+                editor.putInt("user_id", userId)
+                editor.putString("userName", userName)
                 editor.apply()
 
                 startActivity(Intent(this, HomepageActivity::class.java))

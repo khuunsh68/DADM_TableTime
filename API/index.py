@@ -41,8 +41,8 @@ def login():
     token = jwt.encode(
         {'user_id': user["id"], 'exp': datetime.utcnow() + timedelta(minutes=10)}, "XXXX", 'HS256')
 
-    #user["token"] = token.decode('UTF-8')
-    user["token"] = token
+    user["token"] = token.decode('UTF-8')
+    #user["token"] = token
     return jsonify(user), OK_CODE
 
 @app.route("/register", methods=['POST'])
@@ -61,8 +61,6 @@ def register():
         return jsonify(user), SUCCESS_CODE
     else:
         return jsonify({"error": "method not allowed"}), 403
-
-
 
 def auth_required(f):
     @wraps(f)
@@ -88,6 +86,15 @@ def auth_required(f):
     return decorated
 
 
+@app.route('/getUser/<int:user_id>', methods=['GET'])
+@auth_required
+def getUser(user_id):
+    user = db.get_user(user_id)
+    if user is None:
+        return jsonify({"error": "User not found"}), NOT_FOUND_CODE
+    return jsonify(user), OK_CODE
+
+
 @app.route('/getAllRestaurants', methods=['GET'])
 @auth_required
 def get_all_restaurants():
@@ -103,7 +110,6 @@ def get_restaurant(restaurant_name):
         return jsonify({"error": "No content"}), NO_CONTENT_CODE
     return jsonify(restaurant), OK_CODE
 
-
 @app.route('/reserva/get_all_reservas_from_user/<int:user_id>', methods=['GET'])
 @auth_required
 def get_all_reservas_from_user(user_id):
@@ -112,30 +118,50 @@ def get_all_reservas_from_user(user_id):
         return jsonify({"error": "No content"}), NO_CONTENT_CODE
     return jsonify(reserva), OK_CODE
 
-"""
-@app.route('/reserva/verificardDisponibilidade/<int:restaurant_id>, <datetime:data_reserva>, <time:horario>, <int:quantidade>', methods=['GET'])
+@app.route('/reserva/verificarDisponibilidade', methods=['GET'])
 @auth_required
-def verificar_disponibilidade_reserva(restaurant_id, data_reserva, horario, quantidade):
-    seq_id = request.args.get("seq_id") or 1
-    reserva = db.verificar_disponibilidade_reserva(restaurant_id, data_reserva, horario, quantidade, seq_id)
-    if reserva is None:
-        return jsonify({"disponivel": "horario disponivel"}), OK_CODE
-    return jsonify(reserva), UNAUTHORIZED_CODE
-
-
-# ----------------------------------------------------------------
-@app.route("/matchs/addReserva", methods=['POST'])
-@auth_required # antes de fazer esta operação primeiro vê se o token é válido 
-def add_reserva():
-    data = request.get_json()
-
-    if "tournament" not in data or "date_match" not in data or "player1" not in data or "player2" not in data:
+def verificar_disponibilidade_reserva():
+    dados_reserva = request.get_json()
+    print(dados_reserva)
+    if "id_restaurante" not in dados_reserva or "data_reserva" not in dados_reserva or "horario" not in dados_reserva or "quantidade" not in dados_reserva:
         return jsonify({"error": "invalid parameters"}), BAD_REQUEST_CODE
 
-    matchs = db.add_matchs(data, request.user['id'])
 
-    return jsonify(matchs), SUCCESS_CODE
-"""
+
+    reserva = db.verificar_disponibilidade_reserva(dados_reserva["id_restaurante"], dados_reserva["data_reserva"], dados_reserva["horario"], dados_reserva["quantidade"])
+
+    if reserva == 0:
+        return jsonify({"disponibilidade": "horario disponivel"}), OK_CODE
+    else: 
+        return jsonify({"disponibilidade": "horario indisponivel"}), UNAUTHORIZED_CODE
+
+
+@app.route("/reserva/addReserva", methods=['POST'])
+@auth_required 
+def add_reserva():
+    dados_reserva = request.get_json()
+    print(dados_reserva)
+    if "id_utilizador" not in dados_reserva or "id_restaurante" not in dados_reserva or "data_reserva" not in dados_reserva or "horario" not in dados_reserva or "quantidade" not in dados_reserva:
+        return jsonify({"error": "invalid parameters"}), BAD_REQUEST_CODE
+    
+    reserva = db.add_reserva(dados_reserva["id_utilizador"], dados_reserva["id_restaurante"], dados_reserva["data_reserva"], dados_reserva["horario"], dados_reserva["quantidade"])
+
+    return jsonify(reserva), SUCCESS_CODE
+
+@app.route("/reserva/removeReserva", methods=['POST'])
+@auth_required 
+def remove_reserva():
+    dados_reserva = request.get_json()
+    print(dados_reserva)
+
+    if "id_utilizador" not in dados_reserva or "id_restaurante" not in dados_reserva or "data_reserva" not in dados_reserva or "horario" not in dados_reserva or "quantidade" not in dados_reserva:
+        return jsonify({"error": "invalid parameters"}), BAD_REQUEST_CODE
+    
+    reserva = db.remove_reserva(dados_reserva["id_utilizador"], dados_reserva["id_restaurante"], dados_reserva["data_reserva"], dados_reserva["horario"], dados_reserva["quantidade"])
+
+    return jsonify(reserva), SUCCESS_CODE
+
+
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

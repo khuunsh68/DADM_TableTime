@@ -1,25 +1,38 @@
 package com.ua.tabletime
 
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
+import android.widget.Toast
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 
 class ContaInformacoesActivity : AppCompatActivity() {
 
-    lateinit var buttonTerminarSessao: Button
-    lateinit var textTitulo: TextView
+    private lateinit var buttonTerminarSessao: Button
+    private lateinit var textTitulo: TextView
+    private lateinit var userName: TextView
+    private lateinit var userEmail: TextView
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_conta_informacoes)
 
+        userName = findViewById(R.id.userName)
+        userEmail = findViewById(R.id.userEmail)
+        buttonTerminarSessao = findViewById(R.id.buttonTerminarSessao)
+        textTitulo = findViewById(R.id.textTitulo)
+        sharedPreferences = getSharedPreferences("appPrefs", MODE_PRIVATE)
 
-        setContentView(R.layout.activity_conta_informacoes)
+        fetchUserData()
 
         val containerReservas = findViewById<LinearLayout>(R.id.containerReservas)
 
@@ -39,8 +52,6 @@ class ContaInformacoesActivity : AppCompatActivity() {
             containerReservas.addView(cardView)
         }
 
-        buttonTerminarSessao = findViewById(R.id.buttonTerminarSessao)
-        textTitulo = findViewById(R.id.textTitulo)
         buttonTerminarSessao.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
         }
@@ -48,6 +59,41 @@ class ContaInformacoesActivity : AppCompatActivity() {
         textTitulo.setOnClickListener {
             startActivity(Intent(this, HomepageActivity::class.java))
         }
+    }
 
+    private fun fetchUserData() {
+        val token = sharedPreferences.getString("jwt_token", null)
+        val userId = sharedPreferences.getInt("user_id", -1)
+
+        if (token == null || userId == -1) {
+            Toast.makeText(this, "Erro ao obter token ou ID do usuário", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val url = "https://dadm-api.vercel.app/getUser/$userId"
+
+        val requestQueue = Volley.newRequestQueue(this)
+
+        val jsonObjectRequest = object : JsonObjectRequest(
+            Request.Method.GET, url, null,
+            { response ->
+                val name = response.getString("nome")
+                val email = response.getString("email")
+
+                userName.text = name
+                userEmail.text = email
+            },
+            { error ->
+                Toast.makeText(this, "Falha ao buscar dados do usuário: ${error.message}", Toast.LENGTH_LONG).show()
+            }
+        ) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer $token"
+                return headers
+            }
+        }
+
+        requestQueue.add(jsonObjectRequest)
     }
 }

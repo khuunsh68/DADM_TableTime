@@ -39,6 +39,7 @@ def login(email, password):
                 user = {
                     "id": user_tuple[0],
                     "email": user_tuple[1],
+                    "nome": user_tuple[2]
                 }
     except (Exception, psycopg2.Error) as error :
         print ("Error while connecting to PostgreSQL", error)
@@ -56,9 +57,11 @@ def get_user(user_id):
                 user_tuple = cur.fetchone()
                 if user_tuple is None:
                     return None
+                user = None
                 user = {
                         "id": user_tuple[0],
                         "email": user_tuple[1],
+                        "nome": user_tuple[2]
                     }
     except (Exception, psycopg2.Error) as error :
         print ("Error while connecting to PostgreSQL", error)
@@ -169,60 +172,65 @@ def get_all_reservas_from_user(user_id):
         return reservas
 
 
-def verificar_disponibilidade_reserva(restaurant, data_reserva, horario, quantidade):
+def verificar_disponibilidade_reserva(id_restaurant, data_reserva, horario, quantidade):
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT * FROM reserva WHERE id_restaurante=%s AND data_reserva=%s AND horario=%s AND quantidade=%s", [restaurant["id"], data_reserva, horario, quantidade])
+                query = "SELECT * FROM reserva WHERE id_restaurante=%s AND data_reserva=%s AND horario=%s AND quantidade=%s"
+                parms = [id_restaurant, data_reserva, horario, quantidade]
+                print(query, parms)
+                cur.execute(query,parms )
+                print()
                 reserva_tuple = cur.fetchone()
                 if reserva_tuple is None:
-                    return None
+                    return 0
                 reserva = {
                         "id": reserva_tuple[0],
                         "id_utilizador": reserva_tuple[1],
                         "id_restaurante": reserva_tuple[2],
-                        "data_reserva": reserva_tuple[3],
-                        "horario": reserva_tuple[4],
+                        "data_reserva": reserva_tuple[3].strftime("%d/%m/%Y"),
+                        "horario": reserva_tuple[4].strftime("%H:%M"),
                         "quantidade": reserva_tuple[5]
                     }
+                print(reserva)
+                return 1
     except (Exception, psycopg2.Error) as error :
         print ("Error while connecting to PostgreSQL", error)
     finally:
         if(conn):
             cur.close()
             conn.close()
-        return reserva
 
 
-def add_reserva(user, restaurant, data_reserva, horario, quantidade):
+def add_reserva(id_user, id_restaurant, data_reserva, horario, quantidade):
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("INSERT INTO reserva (id_utilizador, id_restaurant, data_reserva, horario, quantidade) VALUES (%s, %s, %s, %s, %s) RETURNING *", [user["id"], restaurant["id"], data_reserva, horario, quantidade])
+                cur.execute("INSERT INTO reserva (id_utilizador, id_restaurante, data_reserva, horario, quantidade) VALUES (%s, %s, %s, %s, %s) RETURNING *", [id_user, id_restaurant, data_reserva, horario, quantidade])
                 conn.commit()
                 reserva_tuple = cur.fetchone()
                 reserva = {
                         "id": reserva_tuple[0],
                         "id_utilizador": reserva_tuple[1],
                         "id_restaurante": reserva_tuple[2],
-                        "data_reserva": reserva_tuple[3],
-                        "horario": reserva_tuple[4],
+                        "data_reserva": reserva_tuple[3].strftime("%d/%m/%Y"),
+                        "horario": reserva_tuple[4].strftime("%H:%M"),
                         "quantidade": reserva_tuple[5]
                     }
+                return reserva
     except (Exception, psycopg2.Error) as error :
         print ("Error while connecting to PostgreSQL", error)
     finally:
         if(conn):
             cur.close()
             conn.close()
-        return reserva
 
 
-def remove_reserva(reserva):
+def remove_reserva(id_user, id_restaurant, data_reserva, horario, quantidade):
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("DELETE FROM reserva WHERE id=%s RETURNING *", [reserva["id"]])
+                cur.execute("DELETE FROM reserva WHERE id_utilizador=%s AND id_restaurante=%s AND data_reserva=%s AND horario=%s AND quantidade=%s RETURNING *", [id_user, id_restaurant, data_reserva, horario, quantidade])
                 conn.commit()
                 var = None
                 var = len(cur.fetchall()) > 0
@@ -232,5 +240,4 @@ def remove_reserva(reserva):
         if(conn):
             cur.close()
             conn.close()
-        return var  
-
+        return var

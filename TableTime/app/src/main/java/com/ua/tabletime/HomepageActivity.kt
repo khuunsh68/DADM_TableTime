@@ -1,16 +1,22 @@
 package com.ua.tabletime
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.SearchView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.Volley
 
 class HomepageActivity : AppCompatActivity() {
 
@@ -18,8 +24,9 @@ class HomepageActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: RestaurantAdapter
     private lateinit var searchView: SearchView
-    private lateinit var restaurantList: List<Restaurant>
+    private var restaurantList: List<Restaurant> = listOf()
     private lateinit var btnSearch: Button
+    private lateinit var helloUser: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,15 +41,16 @@ class HomepageActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerViewRestaurants)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Receber os dados da API(Testes para já sem api)
-        restaurantList = fetchRestaurantDataFromApi()
-
-        // Configurar o adaptador e definir no RecyclerView
+        // Inicializar o adaptador com uma lista vazia
         adapter = RestaurantAdapter(restaurantList)
         recyclerView.adapter = adapter
 
+        // Receber os dados da API
+        fetchRestaurantDataFromApi()
+
         btnProfilePage = findViewById(R.id.btnProfilePage)
         btnSearch = findViewById(R.id.buttonSearch)
+        helloUser = findViewById(R.id.helloUser)
 
         btnProfilePage.setOnClickListener {
             startActivity(Intent(this, ContaInformacoesActivity::class.java))
@@ -51,6 +59,14 @@ class HomepageActivity : AppCompatActivity() {
         btnSearch.setOnClickListener {
             val query = searchView.query.toString()
             filter(query)
+        }
+
+        val sharedPref = getSharedPreferences("appPrefs", MODE_PRIVATE)
+        val userName = sharedPref.getString("userName", "")
+
+        // Atualiza o TextView com o nome do usuário
+        if (!userName.isNullOrEmpty()) {
+            helloUser.text = "Olá, $userName"
         }
 
         // Filtra o recyclerview após pesquisar na barra de pesquisa
@@ -68,17 +84,49 @@ class HomepageActivity : AppCompatActivity() {
 //        })
     }
 
-    private fun fetchRestaurantDataFromApi(): List<Restaurant> {
-        // Aqui você buscaria os dados dos restaurantes da API e retornaria uma lista de objetos Restaurant
-        // Exemplo simplificado:
-        return listOf(
-            Restaurant(R.drawable.restaurante1, "Restaurante 1", "Pizza", 4.2),
-            Restaurant(R.drawable.restaurante1, "Restaurante 2", "Sushi", 4.5),
-            Restaurant(R.drawable.restaurante1, "Restaurante 3", "Hamburgueria", 4.1),
-            Restaurant(R.drawable.restaurante1, "Restaurante 4", "Comida Mexicana", 4.7),
-            Restaurant(R.drawable.restaurante1, "Restaurante 5", "Churrascaria", 4.3),
-            // Adicione mais restaurantes conforme necessário
-        )
+    private fun fetchRestaurantDataFromApi() {
+        val url = "https://dadm-api.vercel.app/getAllRestaurants"
+        val requestQueue = Volley.newRequestQueue(this)
+
+        // Recuperar o token das SharedPreferences
+        val sharedPref = getSharedPreferences("appPrefs", MODE_PRIVATE)
+        val token = sharedPref.getString("jwt_token", "")
+
+        val jsonArrayRequest = object : JsonArrayRequest(
+            Method.GET, url, null,
+            { response ->
+                val restaurants = mutableListOf<Restaurant>()
+                for (i in 0 until response.length()) {
+                    val restaurantJson = response.getJSONObject(i)
+                    // Verificar se a chave "nome" está presente no objeto JSON
+                    if (restaurantJson.has("nome")) {
+                        val restaurant = Restaurant(
+                            name = restaurantJson.getString("nome"),
+                            avaliacao = restaurantJson.getDouble("avaliacao"),
+                            imageResource = restaurantJson.getString("imagem_url"),
+                            cuisineType = restaurantJson.getString("tipo_cozinha")
+                        )
+                        restaurants.add(restaurant)
+                    }
+                }
+                // Atualize a lista de restaurantes e o adaptador
+                restaurantList = restaurants
+                adapter.updateData(restaurantList)
+            },
+            { error ->
+                // Handle error
+                Toast.makeText(this, "Failed to fetch restaurants: ${error.message}", Toast.LENGTH_LONG).show()
+            }
+        ) {
+            // Adicionar o token ao cabeçalho da solicitação
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer $token"
+                return headers
+            }
+        }
+
+        requestQueue.add(jsonArrayRequest)
     }
 
     private fun filter(query: String?) {

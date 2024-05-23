@@ -9,11 +9,11 @@ data class Restaurant(
     val horario_abertura: Time,
     val horario_encerramento: Time,
     val avaliacao: Double,
-    val imageResource: Int, // ID da imagem do restaurante
+    val imageResource: String,
     val cuisineType: String
 ) {
     constructor(
-        imageResource: Int,
+        imageResource: String,
         name: String,
         cuisineType: String,
         avaliacao: Double

@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 
 class RestaurantAdapter(private var restaurantList: List<Restaurant>) :
     RecyclerView.Adapter<RestaurantAdapter.RestaurantViewHolder>() {
@@ -24,7 +25,12 @@ class RestaurantAdapter(private var restaurantList: List<Restaurant>) :
 
     override fun onBindViewHolder(holder: RestaurantViewHolder, position: Int) {
         val currentRestaurant = restaurantList[position]
-        holder.imageViewRestaurant.setImageResource(currentRestaurant.imageResource)
+
+        // Usando Glide para carregar a imagem do restaurante
+        Glide.with(holder.itemView.context)
+            .load(currentRestaurant.imageResource)
+            .into(holder.imageViewRestaurant)
+
         holder.textViewRestaurantName.text = currentRestaurant.name
         holder.textViewRestaurantCuisine.text = currentRestaurant.cuisineType
         holder.textViewRestaurantRating.text = currentRestaurant.avaliacao.toString()
