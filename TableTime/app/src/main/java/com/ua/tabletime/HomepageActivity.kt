@@ -27,6 +27,7 @@ class HomepageActivity : AppCompatActivity() {
     private var restaurantList: List<Restaurant> = listOf()
     private lateinit var btnSearch: Button
     private lateinit var helloUser: TextView
+    private lateinit var btnGoRestauranteSelecionado: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +52,11 @@ class HomepageActivity : AppCompatActivity() {
         btnProfilePage = findViewById(R.id.btnProfilePage)
         btnSearch = findViewById(R.id.buttonSearch)
         helloUser = findViewById(R.id.helloUser)
+        btnGoRestauranteSelecionado = findViewById(R.id.buttonGoRestauranteSelecionado)
+
+        btnGoRestauranteSelecionado.setOnClickListener {
+            startActivity(Intent(this, SelectedRestaurantActivity::class.java))
+        }
 
         btnProfilePage.setOnClickListener {
             startActivity(Intent(this, ContaInformacoesActivity::class.java))
