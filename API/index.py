@@ -126,8 +126,6 @@ def verificar_disponibilidade_reserva():
     if "id_restaurante" not in dados_reserva or "data_reserva" not in dados_reserva or "horario" not in dados_reserva or "quantidade" not in dados_reserva:
         return jsonify({"error": "invalid parameters"}), BAD_REQUEST_CODE
 
-
-
     reserva = db.verificar_disponibilidade_reserva(dados_reserva["id_restaurante"], dados_reserva["data_reserva"], dados_reserva["horario"], dados_reserva["quantidade"])
 
     if reserva == 0:

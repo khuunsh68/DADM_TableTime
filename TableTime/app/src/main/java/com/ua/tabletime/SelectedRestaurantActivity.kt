@@ -13,11 +13,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.android.volley.Request
-import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import org.json.JSONObject
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 
 class SelectedRestaurantActivity : AppCompatActivity() {
 
@@ -63,13 +64,14 @@ class SelectedRestaurantActivity : AppCompatActivity() {
                     if (numeroPessoas >= 1) {
                         if (selectedDate != null && selectedTime != null) {
                             val message =
-                                "Número de pessoas: $numeroPessoas\nData selecionada: $selectedDate\nHora selecionada: $selectedTime"
-                            //Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                                "Data selecionada: $selectedDate\nHora selecionada: $selectedTime"
+                            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+
+
                             // ENVIAR OS DADOS PARA A API PARA VERIFICAR DISPONIBILIDADE
-
-                            fetchVerificarDisponibilidadeFromApi(1, numeroPessoas);
+                            var idRestaurante = 1;
+                            fetchVerificarDisponibilidadeFromApi(idRestaurante, numeroPessoas)
                             //trocar 1 por o id_restaurante do restaurante selecionado
-
                         } else {
                             Toast.makeText(
                                 this,
@@ -104,9 +106,12 @@ class SelectedRestaurantActivity : AppCompatActivity() {
                 calendar.set(Calendar.MONTH, month)
                 calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
-                selectedDate = "${dayOfMonth.toString().padStart(2, '0')}/${
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                selectedDate = dateFormat.format(calendar.time);
+
+                /*selectedDate = "${dayOfMonth.toString().padStart(2, '0')}/${
                     (month + 1).toString().padStart(2, '0')
-                }/$year"
+                }/$year"*/
 
                 TimePickerDialog(this, { _, hourOfDay, minute ->
                     calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
@@ -114,7 +119,7 @@ class SelectedRestaurantActivity : AppCompatActivity() {
 
                     selectedTime = "${hourOfDay.toString().padStart(2, '0')}:${
                         minute.toString().padStart(2, '0')
-                    }"
+                    }:00"
 
                     val selectedDateTime = "$selectedDate $selectedTime"
                     editTextDataHora.setText(selectedDateTime)
@@ -139,46 +144,36 @@ class SelectedRestaurantActivity : AppCompatActivity() {
         jsonObject.put("horario", selectedTime)
         jsonObject.put("quantidade", quantidade)
 
-        val jsonObjectRequest = JsonObjectRequest(
+        Log.d(
+            "aaa", "id_restaurante: $id_restaurante,\n" +
+                    "data: $selectedDate,\n" +
+                    "horario: $selectedTime,\n" +
+                    "quantidade: $quantidade"
+        )
+
+        val jsonObjectRequest = object : JsonObjectRequest(
             Request.Method.POST, url, jsonObject,
             { response ->
-                Toast.makeText(this, response.toString(), Toast.LENGTH_LONG).show()
+                val disponibilidade = response.getString("disponibilidade")
+                Toast.makeText(this, disponibilidade, Toast.LENGTH_LONG).show()
             },
             { error ->
                 val errorMsg = when (error.networkResponse?.statusCode) {
-                    401 -> "${error.message}"
-                    else -> "Erro: ${error.message}"
+                    400 -> "Parâmetros inválidos."
+                    401 -> "Não autorizado."
+                    500 -> "Erro interno do servidor."
+                    else -> "Erro: ${error.toString()}"
                 }
                 Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
             }
-        )
-
-        val jsonArrayRequest = object : JsonArrayRequest(
-            Method.GET, url, null,
-            { response ->
-                for (i in 0 until response.length()) {
-                    val restaurantJson = response.getJSONObject(i)
-                    Log.d("disponibilidade", restaurantJson.getString("disponibilidade"))
-                }
-            },
-            { error ->
-                // Handle error
-                Toast.makeText(
-                    this,
-                    "Failed to fetch verificar disponibilidade: ${error.message}",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
         ) {
-            // Adicionar o token ao cabeçalho da solicitação
             override fun getHeaders(): MutableMap<String, String> {
                 val headers = HashMap<String, String>()
                 headers["Authorization"] = "Bearer $token"
+                headers["Content-Type"] = "application/json"
                 return headers
             }
         }
-
-        requestQueue.add(jsonArrayRequest)
+        requestQueue.add(jsonObjectRequest)
     }
-
 }
