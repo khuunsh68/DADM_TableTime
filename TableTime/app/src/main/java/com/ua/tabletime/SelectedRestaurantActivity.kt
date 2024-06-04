@@ -2,6 +2,7 @@ package com.ua.tabletime
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -132,11 +133,17 @@ class SelectedRestaurantActivity : AppCompatActivity() {
     }
 
     private fun fetchVerificarDisponibilidadeFromApi(id_restaurante: Int, quantidade: Int) {
-        val url = "https://dadm-api.vercel.app/reserva/verificarDisponibilidade"
+        val url = "https://dadm-api.vercel.app/verificarDisponibilidade"
         val requestQueue = Volley.newRequestQueue(this)
 
         val sharedPref = getSharedPreferences("appPrefs", MODE_PRIVATE)
         val token = sharedPref.getString("jwt_token", "")
+        val editor = sharedPref.edit()
+        editor.putInt("id_restaurante", id_restaurante)
+        editor.putInt("quantidade", quantidade)
+        editor.putString("dataReserva", selectedDate)
+        editor.putString("horario", selectedTime)
+        editor.apply()
 
         val jsonObject = JSONObject()
         jsonObject.put("id_restaurante", id_restaurante)
@@ -156,11 +163,18 @@ class SelectedRestaurantActivity : AppCompatActivity() {
             { response ->
                 val disponibilidade = response.getString("disponibilidade")
                 Toast.makeText(this, disponibilidade, Toast.LENGTH_LONG).show()
+
+                Log.d("ddd", disponibilidade)
+                if(disponibilidade.equals("horario disponivel")) {
+                    startActivity(Intent(this, ConfirmReserveSelectedRestaurantActivity::class.java))
+                } else if(disponibilidade.equals("horario indisponivel")) {
+                    Toast.makeText(this, "Horario indisponivel!\n Tente outro.", Toast.LENGTH_LONG).show()
+                }
             },
             { error ->
                 val errorMsg = when (error.networkResponse?.statusCode) {
                     400 -> "Parâmetros inválidos."
-                    401 -> "Não autorizado."
+                    401 -> "Horario indisponivel!\n Tente outro."
                     500 -> "Erro interno do servidor."
                     else -> "Erro: ${error.toString()}"
                 }

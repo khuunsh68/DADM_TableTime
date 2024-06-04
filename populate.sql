@@ -5,7 +5,8 @@ INSERT INTO restaurante (
         horario_encerramento,
         avaliacao,
         imagem_url,
-        tipo_cozinha
+        tipo_cozinha,
+        capacidade_maxima
     )
 VALUES (
         'La Mozzarella Aveiro',
@@ -14,7 +15,8 @@ VALUES (
         '22:30',
         4.5,
         'https://lh3.googleusercontent.com/p/AF1QipPjtul-OfOgdr_UNrQFCboV81J2vfn-1BvaUyUh=s138-w138-h108-n-k-no',
-        'Italiana'
+        'Italiana',
+        100
     ),
     (
         'A Gula Do Prego',
@@ -23,7 +25,8 @@ VALUES (
         '22:00',
         4.0,
         'https://lh3.googleusercontent.com/p/AF1QipMwCdX2QFY4Q0ETGaV3oVrTfiAgZZl824gwUTdd=s120-w120-h87-n-k-no',
-        'Comida Típica'
+        'Comida Típica',
+        85
     ),
     (
         'Cantinho do Bacalhau',
@@ -32,7 +35,8 @@ VALUES (
         '23:59',
         2.7,
         'https://lh3.googleusercontent.com/p/AF1QipOnHkcFks87P_zj5adB9A3NZ1f-SFM_8RIJ9saS=s156-w156-h108-n-k-no',
-        'Bacalhau'
+        'Bacalhau',
+        80
     ),
     (
         'Ramona',
@@ -41,7 +45,8 @@ VALUES (
         '23:59',
         4.5,
         'https://lh3.googleusercontent.com/p/AF1QipOhxSy0RMbxG0DyYBE0vRherf03bzliyfl5QSdW=s184-w184-h130-n-k-no',
-        'Hambúrguer'
+        'Hambúrguer',
+        50
     ),
     (
         'Serra de Estrela',
@@ -50,7 +55,8 @@ VALUES (
         '23:00',
         3.9,
         'https://lh3.googleusercontent.com/p/AF1QipPSrVJ9P7YcB6P61dWYU1SNMeZRXZ3DyrwFUrcX=s184-w184-h144-n-k-no',
-        'Portuguesa'
+        'Portuguesa',
+        100
     ),
     (
         'Burrié',
@@ -59,7 +65,8 @@ VALUES (
         '19:00',
         4.3,
         'https://lh3.googleusercontent.com/p/AF1QipPSrVJ9P7YcB6P61dWYU1SNMeZRXZ3DyrwFUrcX=s184-w184-h144-n-k-no',
-        'Marisco'
+        'Marisco',
+        100
     ),
     (
         'McDonalds Aveiro Universidade',
@@ -68,7 +75,8 @@ VALUES (
         '01 :00',
         4.3,
         'https://lh3.googleusercontent.com/p/AF1QipN_p26j8WxODfKG-B7-emFDPEnja4e2WrREc7JV=s184-w184-h144-n-k-no',
-        'Fast Food'
+        'Fast Food',
+        120
     ),
     (
         'Taco Bell',
@@ -77,7 +85,8 @@ VALUES (
         '23:00',
         3.9,
         'https://lh3.googleusercontent.com/p/AF1QipPrkVZ_2FZUJyJZ4gcDwMsfRuICfZ5razV-JPc=s184-w184-h130-n-k-no',
-        'Mexicana'
+        'Mexicana',
+        90
     ),
     (
         'Burger King Aveiro',
@@ -86,5 +95,6 @@ VALUES (
         '22:00',
         3.9,
         'https://lh3.googleusercontent.com/p/AF1QipMkMK5KbW_1Q03Luq5NdLQUdGr3BFRJka0sxd-C=s1360-w1360-h1020-rw',
-        'Fast Food'
+        'Fast Food',
+        90
     );

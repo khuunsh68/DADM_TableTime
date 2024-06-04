@@ -145,6 +145,26 @@ def get_restaurant(name_restaurant):
             cur.close()
             conn.close()
         return restaurant
+        
+        
+def get_name_restaurant(id_restaurant):
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT nome FROM restaurante WHERE id = %s", [id_restaurant])
+                restaurant_tuple = cur.fetchone()
+                if restaurant_tuple is None:
+                    return None
+                restaurant = {
+                        "nome": restaurant_tuple[0]
+                    }
+    except (Exception, psycopg2.Error) as error :
+        print ("Error while connecting to PostgreSQL", error)
+    finally:
+        if(conn):
+            cur.close()
+            conn.close()
+        return restaurant
 
 
 def get_all_reservas_from_user(user_id):

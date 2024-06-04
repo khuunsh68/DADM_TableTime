@@ -109,8 +109,16 @@ def get_restaurant(restaurant_name):
     if restaurant is None:
         return jsonify({"error": "No content"}), NO_CONTENT_CODE
     return jsonify(restaurant), OK_CODE
+    
+@app.route('/get_name_restaurant/<int:id_restaurant>', methods=['GET'])
+@auth_required
+def get_name_restaurant(id_restaurant):
+    restaurant = db.get_name_restaurant(id_restaurant)
+    if restaurant is None:
+        return jsonify({"error": "No content"}), NO_CONTENT_CODE
+    return jsonify(restaurant), OK_CODE
 
-@app.route('/reserva/get_all_reservas_from_user/<int:user_id>', methods=['GET'])
+@app.route('/get_all_reservas_from_user/<int:user_id>', methods=['GET'])
 @auth_required
 def get_all_reservas_from_user(user_id):
     reserva = db.get_all_reservas_from_user(user_id)
@@ -118,13 +126,15 @@ def get_all_reservas_from_user(user_id):
         return jsonify({"error": "No content"}), NO_CONTENT_CODE
     return jsonify(reserva), OK_CODE
 
-@app.route('/reserva/verificarDisponibilidade', methods=['GET'])
+@app.route('/verificarDisponibilidade', methods=['POST'])
 @auth_required
 def verificar_disponibilidade_reserva():
     dados_reserva = request.get_json()
     print(dados_reserva)
     if "id_restaurante" not in dados_reserva or "data_reserva" not in dados_reserva or "horario" not in dados_reserva or "quantidade" not in dados_reserva:
         return jsonify({"error": "invalid parameters"}), BAD_REQUEST_CODE
+
+
 
     reserva = db.verificar_disponibilidade_reserva(dados_reserva["id_restaurante"], dados_reserva["data_reserva"], dados_reserva["horario"], dados_reserva["quantidade"])
 
@@ -134,7 +144,7 @@ def verificar_disponibilidade_reserva():
         return jsonify({"disponibilidade": "horario indisponivel"}), UNAUTHORIZED_CODE
 
 
-@app.route("/reserva/addReserva", methods=['POST'])
+@app.route("/addReserva", methods=['POST'])
 @auth_required 
 def add_reserva():
     dados_reserva = request.get_json()
@@ -146,7 +156,7 @@ def add_reserva():
 
     return jsonify(reserva), SUCCESS_CODE
 
-@app.route("/reserva/removeReserva", methods=['POST'])
+@app.route("/removeReserva", methods=['POST'])
 @auth_required 
 def remove_reserva():
     dados_reserva = request.get_json()

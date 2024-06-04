@@ -15,7 +15,7 @@ CREATE TABLE Restaurante (
 	avaliacao DECIMAL(2,1) CHECK (avaliacao >= 0 AND avaliacao <= 5) DEFAULT 0,
 	imagem_url VARCHAR(255),
 	tipo_cozinha VARCHAR(255),
-	capacidade_maxima INT
+	capacidade_maxima INT NOT NULL
 );
 
 CREATE TABLE Reserva (
