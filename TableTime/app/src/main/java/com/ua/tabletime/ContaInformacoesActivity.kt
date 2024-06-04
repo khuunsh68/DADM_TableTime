@@ -1,5 +1,6 @@
 package com.ua.tabletime
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
@@ -10,11 +11,15 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import com.android.volley.NetworkResponse
 import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.HttpHeaderParser
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import org.json.JSONArray
+import org.json.JSONObject
 
 class ContaInformacoesActivity : AppCompatActivity() {
 
@@ -130,16 +135,70 @@ class ContaInformacoesActivity : AppCompatActivity() {
                 val textViewQuantidade = cardView.findViewById<TextView>(R.id.textViewQuantidade)
                 val textViewDataReserva = cardView.findViewById<TextView>(R.id.textViewDataReserva)
                 val imageView = cardView.findViewById<ImageView>(R.id.imageView)
-                val imageView2 = cardView.findViewById<ImageView>(R.id.imageView2)
+                val btnDeleteReserva = cardView.findViewById<ImageView>(R.id.btnDeleteReserva)
 
                 textViewNomeReserva.text = restaurantName
                 textViewQuantidade.text = reserva.getInt("quantidade").toString()
                 textViewDataReserva.text = "${reserva.getString("data_reserva")} - ${reserva.getString("horario")}"
 
+                btnDeleteReserva.setOnClickListener {
+                    showDeleteConfirmationDialog(reserva)
+                }
+
                 containerReservas.addView(cardView)
             }
         }
     }
+
+    private fun showDeleteConfirmationDialog(reserva: JSONObject) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Confirmar Exclusão")
+        builder.setMessage("Tem certeza de que deseja excluir esta reserva?")
+        builder.setPositiveButton("Sim") { dialog, _ ->
+            deleteReserva(reserva)
+            dialog.dismiss()
+        }
+        builder.setNegativeButton("Não") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.create().show()
+    }
+
+    private fun deleteReserva(reserva: JSONObject) {
+        val token = sharedPreferences.getString("jwt_token", null)
+
+        if (token == null) {
+            Toast.makeText(this, "Erro ao obter token", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val url = "https://dadm-api.vercel.app/removeReserva"
+        val requestQueue = Volley.newRequestQueue(this)
+
+        val jsonObjectRequest = object : JsonObjectRequest(
+            Request.Method.POST, url, reserva,
+            { response ->
+                val message = response.optString("message")
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                if (message == "Reserva apagada") {
+                    fetchReservas()
+                }
+            },
+            { error ->
+                Toast.makeText(this, "Falha ao remover reserva: ${error.message}", Toast.LENGTH_LONG).show()
+            }
+        ) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] = "Bearer $token"
+                headers["Content-Type"] = "application/json"
+                return headers
+            }
+        }
+
+        requestQueue.add(jsonObjectRequest)
+    }
+
 
     private fun fetchRestaurantName(restaurantId: Int, callback: (String) -> Unit) {
         val token = sharedPreferences.getString("jwt_token", null)
