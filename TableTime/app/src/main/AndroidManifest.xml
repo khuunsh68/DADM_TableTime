@@ -16,6 +16,12 @@
         android:theme="@style/Theme.TableTime"
         tools:targetApi="31">
         <activity
+            android:name=".ReservaConfirmadaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ConfirmReserveSelectedRestaurantActivity"
+            android:exported="false" />
+        <activity
             android:name=".SelectedRestaurantActivity"
             android:exported="false" />
         <activity

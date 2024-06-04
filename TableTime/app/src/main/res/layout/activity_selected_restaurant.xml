@@ -8,7 +8,7 @@
     tools:context=".SelectedRestaurantActivity">
 
     <ImageView
-        android:id="@+id/imageView4"
+        android:id="@+id/imageViewRestauranteSelecionado"
         android:layout_width="410dp"
         android:layout_height="215dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -81,7 +81,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/imageView4"
+        app:layout_constraintTop_toTopOf="@+id/imageViewRestauranteSelecionado"
         app:layout_constraintVertical_bias="0.68" />
 
     <Button
