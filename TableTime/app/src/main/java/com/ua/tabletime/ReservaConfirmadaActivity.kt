@@ -27,7 +27,6 @@ class ReservaConfirmadaActivity : AppCompatActivity() {
 
         btnVoltarHomepage.setOnClickListener {
             startActivity(Intent(this, HomepageActivity::class.java))
-            //TEM QUE SE DAR finish() AQUI?
         }
 
     }

@@ -1,16 +1,17 @@
 import os
+from datetime import datetime as dt, timedelta
 from re import I
 
 import psycopg2
 
-hostname = "aid.estgoh.ipc.pt"
-database_name = "db109180113331"
-username = "a109180113331"
-palavra_passe = "grupo3_dadm2024"
+hostname = os.environ.get("DB_HOST")
+database_name = os.environ.get("DB_DATABASE")
+username = os.environ.get("DB_USER")
+palavra_passe = os.environ.get("DB_PASSWORD")
 
 
 def get_connection():
-    return psycopg2.connect(host=hostname, database = database_name, user=username, password = palavra_passe)
+    return psycopg2.connect(host=hostname, database=database_name, user=username, password=palavra_passe)
 
 def user_exists(user):
     try:
@@ -38,8 +39,8 @@ def login(email, password):
                     return None
                 user = {
                     "id": user_tuple[0],
-                    "email": user_tuple[1],
-                    "nome": user_tuple[2]
+                    "nome": user_tuple[1],
+                    "email": user_tuple[2]
                 }
     except (Exception, psycopg2.Error) as error :
         print ("Error while connecting to PostgreSQL", error)
@@ -196,26 +197,38 @@ def verificar_disponibilidade_reserva(id_restaurant, data_reserva, horario, quan
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                query = "SELECT * FROM reserva WHERE id_restaurante=%s AND data_reserva=%s AND horario=%s AND quantidade=%s"
-                parms = [id_restaurant, data_reserva, horario, quantidade]
-                print(query, parms)
-                cur.execute(query,parms )
-                print()
-                reserva_tuple = cur.fetchone()
-                if reserva_tuple is None:
-                    return 0
-                reserva = {
-                        "id": reserva_tuple[0],
-                        "id_utilizador": reserva_tuple[1],
-                        "id_restaurante": reserva_tuple[2],
-                        "data_reserva": reserva_tuple[3].strftime("%d/%m/%Y"),
-                        "horario": reserva_tuple[4].strftime("%H:%M"),
-                        "quantidade": reserva_tuple[5]
-                    }
-                print(reserva)
-                return 1
-    except (Exception, psycopg2.Error) as error :
-        print ("Error while connecting to PostgreSQL", error)
+                # Obtém a capacidade do restaurante
+                query_capacity = "SELECT capacidade_maxima FROM restaurante WHERE id=%s"
+                cur.execute(query_capacity, [id_restaurant])
+                capacidade_tuple = cur.fetchone()
+                if capacidade_tuple is None:
+                    return {"error": "Restaurante não encontrado"}, 404
+                capacidade_restaurante = capacidade_tuple[0]
+                
+                horario_obj = dt.strptime(horario, '%H:%M:%S')
+                
+                # Converte o horário para o formato adequado e define o intervalo de uma hora
+                hora_inicio = horario_obj - dt.timedelta(hours=1)
+                hora_fim = hora_inicio + dt.timedelta(hours=1)
+                
+                # Consulta para verificar as reservas no intervalo de uma hora
+                query = """
+                    SELECT SUM(quantidade) FROM reserva
+                    WHERE id_restaurante=%s AND data_reserva=%s AND horario BETWEEN %s AND %s
+                """
+                parms = [id_restaurant, data_reserva, hora_inicio.strftime("%H:%M"), hora_fim.strftime("%H:%M")]
+                cur.execute(query, parms)
+                soma_quantidades_tuple = cur.fetchone()
+                soma_quantidades = soma_quantidades_tuple[0] if soma_quantidades_tuple[0] is not None else 0
+
+                # Verifica se a nova quantidade de pessoas excede a capacidade do restaurante
+                if soma_quantidades + quantidade <= capacidade_restaurante:
+                    return 0  # Disponível
+                else:
+                    return 1  # Indisponível
+    except (Exception, psycopg2.Error) as error:
+        print("Error while connecting to PostgreSQL", error)
+        return {"error": str(error)}, 500
     finally:
         if(conn):
             cur.close()
@@ -252,12 +265,12 @@ def remove_reserva(id_user, id_restaurant, data_reserva, horario, quantidade):
             with conn.cursor() as cur:
                 cur.execute("DELETE FROM reserva WHERE id_utilizador=%s AND id_restaurante=%s AND data_reserva=%s AND horario=%s AND quantidade=%s RETURNING *", [id_user, id_restaurant, data_reserva, horario, quantidade])
                 conn.commit()
-                var = None
-                var = len(cur.fetchall()) > 0
-    except (Exception, psycopg2.Error) as error :
-        print ("Error while connecting to PostgreSQL", error)
-    finally:
-        if(conn):
-            cur.close()
-            conn.close()
-        return var
+                rows_deleted = cur.rowcount
+                if rows_deleted > 0:
+                    return {"message": "Reserva apagada", "success": True}
+                else:
+                    return {"message": "Reserva não encontrada", "success": False}
+    except (Exception, psycopg2.Error) as error:
+        print("Error while connecting to PostgreSQL", error)
+        return {"message": "Erro ao apagar reserva", "success": False}
+

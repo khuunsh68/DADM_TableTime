@@ -21,7 +21,7 @@ SERVER_ERROR = 500
 
 app = Flask(__name__)
 
-# o nome deste ficheiro tem que ser index.py por causa do vercel.json (também podemos mudar o nome lá)
+# o nome deste ficheiro tem que ser index.py por causa do vercel.json (tambÃÂ©m podemos mudar o nome lÃÂ¡)
 
 @app.route('/', methods = ["GET", "POST"])
 def home():
@@ -77,7 +77,7 @@ def auth_required(f):
         except jwt.ExpiredSignatureError:
             return jsonify({"error": "Token expirado", "expired": True}), UNAUTHORIZED_CODE
         except jwt.InvalidTokenError:
-            return jsonify({"error": "Token inválido"}), FORBIDDEN_CODE
+            return jsonify({"error": "Token invÃÂ¡lido"}), FORBIDDEN_CODE
 
         request.user = db.get_user(data['user_id'])
 
@@ -157,19 +157,23 @@ def add_reserva():
     return jsonify(reserva), SUCCESS_CODE
 
 @app.route("/removeReserva", methods=['POST'])
-@auth_required 
+@auth_required
 def remove_reserva():
     dados_reserva = request.get_json()
     print(dados_reserva)
 
     if "id_utilizador" not in dados_reserva or "id_restaurante" not in dados_reserva or "data_reserva" not in dados_reserva or "horario" not in dados_reserva or "quantidade" not in dados_reserva:
-        return jsonify({"error": "invalid parameters"}), BAD_REQUEST_CODE
-    
-    reserva = db.remove_reserva(dados_reserva["id_utilizador"], dados_reserva["id_restaurante"], dados_reserva["data_reserva"], dados_reserva["horario"], dados_reserva["quantidade"])
+        return jsonify({"message": "Invalid parameters", "success": False}), BAD_REQUEST_CODE
 
-    return jsonify(reserva), SUCCESS_CODE
+    resultado = db.remove_reserva(dados_reserva["id_utilizador"], dados_reserva["id_restaurante"], dados_reserva["data_reserva"], dados_reserva["horario"], dados_reserva["quantidade"])
 
+    if resultado["success"]:
+        return jsonify({"message": resultado["message"], "success": True}), SUCCESS_CODE
+    else:
+        return jsonify({"message": resultado["message"], "success": False}), BAD_REQUEST_CODE
 
 
 if __name__ == "__main__":
     app.run()
+
+
