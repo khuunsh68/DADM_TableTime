@@ -98,3 +98,11 @@ VALUES (
         'Fast Food',
         90
     );
+
+
+
+
+INSERT INTO reserva (id_utilizador, id_restaurante, data_reserva, horario, quantidade) VALUES 
+(1, 1, '2024-06-10', '20:00:00', 10),
+(1, 1, '2024-06-10', '20:10:00', 80)
+;

@@ -46,10 +46,10 @@ BEGIN
     FROM Reserva
     WHERE id_restaurante = NEW.id_restaurante
     AND data_reserva = NEW.data_reserva
-    AND horario BETWEEN NEW.horario AND NEW.horario + INTERVAL '1 hour';
+    AND horario BETWEEN NEW.horario - INTERVAL '1 hour' AND NEW.horario + INTERVAL '1 hour';
 
     IF current_reservations + NEW.quantidade > restaurant_capacity THEN
-        RAISE EXCEPTION 'Capacidade máxima do restaurante excedida para o intervalo de uma hora após o horário da reserva';
+        RAISE EXCEPTION 'Capacidade máxima do restaurante excedida para o intervalo de uma hora';
     END IF;
 
     RETURN NEW;
@@ -73,7 +73,7 @@ BEGIN
     FROM Restaurante
     WHERE id = NEW.id_restaurante;
 
-    IF NEW.horario < opening_time OR NEW.horario > closing_time THEN
+    IF NOT (NEW.horario BETWEEN opening_time AND closing_time) THEN
         RAISE EXCEPTION 'A reserva está fora do horário de funcionamento do restaurante';
     END IF;
 
