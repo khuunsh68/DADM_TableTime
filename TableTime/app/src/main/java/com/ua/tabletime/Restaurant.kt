@@ -13,9 +13,10 @@ data class Restaurant(
     val cuisineType: String
 ) {
     constructor(
+        id: Int,
         imageResource: String,
         name: String,
         cuisineType: String,
         avaliacao: Double
-    ) : this(0, name, "", Time(0), Time(0), avaliacao, imageResource, cuisineType)
+    ) : this(id, name, "", Time(0), Time(0), avaliacao, imageResource, cuisineType)
 }

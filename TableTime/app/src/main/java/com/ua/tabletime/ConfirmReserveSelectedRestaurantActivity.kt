@@ -11,8 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.android.volley.Request
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
 import org.json.JSONObject
 
 class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
@@ -26,7 +24,7 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
     private var quantidade: Int = 0
     private var dataReserva: String? = null
     private var horario: String? = null
-    private var isAddingReserva = false
+    private var isRequestInProgress = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,8 +60,11 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
         )
 
         btnConfirmarReserva.setOnClickListener {
-            if (!isAddingReserva) {
+            if (!isRequestInProgress) {
                 fetchVerificarDisponibilidadeFromApi()
+                btnConfirmarReserva.isEnabled = false
+            } else {
+                Toast.makeText(this, "Requisição já em andamento. Por favor, aguarde.", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -73,18 +74,11 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
     }
 
     private fun fetchVerificarDisponibilidadeFromApi() {
+        if (isRequestInProgress) return
+        isRequestInProgress = true
+
         val url = "https://dadm-api.vercel.app/verificarDisponibilidade"
-        val requestQueue = Volley.newRequestQueue(this)
-
-        val sharedPref = getSharedPreferences("appPrefs", MODE_PRIVATE)
-        val token = sharedPref.getString("jwt_token", "")
-        val editor = sharedPref.edit()
-        editor.putInt("id_restaurante", id_restaurante)
-        editor.putInt("quantidade", quantidade)
-        editor.putString("dataReserva", dataReserva)
-        editor.putString("horario", horario)
-        editor.apply()
-
+        val token = getSharedPreferences("appPrefs", MODE_PRIVATE).getString("jwt_token", "")
         val jsonObject = JSONObject().apply {
             put("id_restaurante", id_restaurante)
             put("data_reserva", dataReserva)
@@ -92,16 +86,11 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
             put("quantidade", quantidade)
         }
 
-        Log.d(
-            "aaa", "id_restaurante: $id_restaurante,\n" +
-                    "data: $dataReserva,\n" +
-                    "horario: $horario,\n" +
-                    "quantidade: $quantidade"
-        )
-
-        val jsonObjectRequest = object : JsonObjectRequest(
+        NetworkUtils.sendJsonObjectRequest(
+            this,
             Request.Method.POST, url, jsonObject,
             { response ->
+                isRequestInProgress = false
                 val disponibilidade = response.getString("disponibilidade")
                 Toast.makeText(this, disponibilidade, Toast.LENGTH_LONG).show()
 
@@ -113,6 +102,7 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
                 }
             },
             { error ->
+                isRequestInProgress = false
                 val errorMsg = when (error.networkResponse?.statusCode) {
                     400 -> "Parâmetros inválidos."
                     401 -> "Horario indisponivel!\n Tente outro."
@@ -120,28 +110,18 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
                     else -> "Erro: ${error.toString()}"
                 }
                 Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
-            }
-        ) {
-            override fun getHeaders(): MutableMap<String, String> {
-                return HashMap<String, String>().apply {
-                    put("Authorization", "Bearer $token")
-                    put("Content-Type", "application/json")
-                }
-            }
-        }
-        requestQueue.add(jsonObjectRequest)
+            },
+            mapOf("Authorization" to "Bearer $token", "Content-Type" to "application/json")
+        )
     }
 
     private fun addReserva() {
-        if (isAddingReserva) return
-        isAddingReserva = true
+        if (isRequestInProgress) return
+        isRequestInProgress = true
 
         val url = "https://dadm-api.vercel.app/addReserva"
-        val requestQueue = Volley.newRequestQueue(this)
-
-        val sharedPref = getSharedPreferences("appPrefs", MODE_PRIVATE)
-        val token = sharedPref.getString("jwt_token", "")
-        val id_utilizador = sharedPref.getInt("user_id", 0)
+        val token = getSharedPreferences("appPrefs", MODE_PRIVATE).getString("jwt_token", "")
+        val id_utilizador = getSharedPreferences("appPrefs", MODE_PRIVATE).getInt("user_id", 0)
 
         val jsonObject = JSONObject().apply {
             put("id_utilizador", id_utilizador)
@@ -151,24 +131,16 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
             put("quantidade", quantidade)
         }
 
-        Log.d(
-            "bbb", "id_utilizador: $id_utilizador,\n" +
-                    "id_restaurante: $id_restaurante,\n" +
-                    "data: $dataReserva,\n" +
-                    "horario: $horario,\n" +
-                    "quantidade: $quantidade"
-        )
-
-        val jsonObjectRequest = object : JsonObjectRequest(
+        NetworkUtils.sendJsonObjectRequest(
+            this,
             Request.Method.POST, url, jsonObject,
             { response ->
-                isAddingReserva = false
+                isRequestInProgress = false
                 Toast.makeText(this, "Reserva adicionada com sucesso!", Toast.LENGTH_LONG).show()
                 startActivity(Intent(this, ReservaConfirmadaActivity::class.java))
-
             },
             { error ->
-                isAddingReserva = false
+                isRequestInProgress = false
                 val errorMsg = when (error.networkResponse?.statusCode) {
                     400 -> "Parâmetros inválidos."
                     401 -> "Acesso não autorizado."
@@ -176,15 +148,8 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
                     else -> "Erro: ${error.toString()}"
                 }
                 Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
-            }
-        ) {
-            override fun getHeaders(): MutableMap<String, String> {
-                return HashMap<String, String>().apply {
-                    put("Authorization", "Bearer $token")
-                    put("Content-Type", "application/json")
-                }
-            }
-        }
-        requestQueue.add(jsonObjectRequest)
+            },
+            mapOf("Authorization" to "Bearer $token", "Content-Type" to "application/json")
+        )
     }
 }

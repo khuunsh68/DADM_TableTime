@@ -14,8 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.android.volley.Request
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -32,6 +30,7 @@ class SelectedRestaurantActivity : AppCompatActivity() {
 
     private var selectedDate: String? = null
     private var selectedTime: String? = null
+    private var restaurantId: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +51,17 @@ class SelectedRestaurantActivity : AppCompatActivity() {
         editTextNumeroPessoas = findViewById(R.id.editTextNumeroPessoas)
         editTextDataHora = findViewById(R.id.editTextDataHora)
 
+        restaurantId = intent.getIntExtra("RESTAURANT_ID", 0)
+        val restaurantName = intent.getStringExtra("RESTAURANT_NAME")
+        val restaurantAvaliacao = intent.getDoubleExtra("RESTAURANT_AVALIACAO", 0.0)
+        val restaurantImage = intent.getStringExtra("RESTAURANT_IMAGE")
+        val restaurantCuisine = intent.getStringExtra("RESTAURANT_CUISINE")
+
+
+        txtNomeRestauranteSelecionado.text = restaurantName
+        txtAvaliacaoRestauranteSelecionado.text = restaurantAvaliacao.toString()
+        txtTipoCozinhaRestauranteSelecionado.text = restaurantCuisine
+
         editTextDataHora.setOnClickListener {
             showDateTimePicker()
         }
@@ -68,11 +78,18 @@ class SelectedRestaurantActivity : AppCompatActivity() {
                                 "Data selecionada: $selectedDate\nHora selecionada: $selectedTime"
                             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 
+                            val sharedPref = getSharedPreferences("appPrefs", MODE_PRIVATE)
+                            with(sharedPref.edit()) {
+                                putInt("id_restaurante", restaurantId)
+                                putInt("quantidade", numeroPessoas)
+                                putString("dataReserva", selectedDate)
+                                putString("horario", selectedTime)
+                                apply()
+                            }
 
-                            // ENVIAR OS DADOS PARA A API PARA VERIFICAR DISPONIBILIDADE
-                            var idRestaurante = 1;
-                            fetchVerificarDisponibilidadeFromApi(idRestaurante, numeroPessoas)
-                            //trocar 1 por o id_restaurante do restaurante selecionado
+                            buttonVerificarDisponibilidade.isEnabled = false
+
+                            fetchVerificarDisponibilidadeFromApi(restaurantId, numeroPessoas)
                         } else {
                             Toast.makeText(
                                 this,
@@ -110,10 +127,6 @@ class SelectedRestaurantActivity : AppCompatActivity() {
                 val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                 selectedDate = dateFormat.format(calendar.time);
 
-                /*selectedDate = "${dayOfMonth.toString().padStart(2, '0')}/${
-                    (month + 1).toString().padStart(2, '0')
-                }/$year"*/
-
                 TimePickerDialog(this, { _, hourOfDay, minute ->
                     calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
                     calendar.set(Calendar.MINUTE, minute)
@@ -134,22 +147,16 @@ class SelectedRestaurantActivity : AppCompatActivity() {
 
     private fun fetchVerificarDisponibilidadeFromApi(id_restaurante: Int, quantidade: Int) {
         val url = "https://dadm-api.vercel.app/verificarDisponibilidade"
-        val requestQueue = Volley.newRequestQueue(this)
 
         val sharedPref = getSharedPreferences("appPrefs", MODE_PRIVATE)
         val token = sharedPref.getString("jwt_token", "")
-        val editor = sharedPref.edit()
-        editor.putInt("id_restaurante", id_restaurante)
-        editor.putInt("quantidade", quantidade)
-        editor.putString("dataReserva", selectedDate)
-        editor.putString("horario", selectedTime)
-        editor.apply()
 
-        val jsonObject = JSONObject()
-        jsonObject.put("id_restaurante", id_restaurante)
-        jsonObject.put("data_reserva", selectedDate)
-        jsonObject.put("horario", selectedTime)
-        jsonObject.put("quantidade", quantidade)
+        val jsonObject = JSONObject().apply {
+            put("id_restaurante", id_restaurante)
+            put("data_reserva", selectedDate)
+            put("horario", selectedTime)
+            put("quantidade", quantidade)
+        }
 
         Log.d(
             "aaa", "id_restaurante: $id_restaurante,\n" +
@@ -158,16 +165,21 @@ class SelectedRestaurantActivity : AppCompatActivity() {
                     "quantidade: $quantidade"
         )
 
-        val jsonObjectRequest = object : JsonObjectRequest(
+        val headers = HashMap<String, String>()
+        headers["Authorization"] = "Bearer $token"
+        headers["Content-Type"] = "application/json"
+
+        NetworkUtils.sendJsonObjectRequest(
+            this,
             Request.Method.POST, url, jsonObject,
             { response ->
                 val disponibilidade = response.getString("disponibilidade")
                 Toast.makeText(this, disponibilidade, Toast.LENGTH_LONG).show()
 
                 Log.d("ddd", disponibilidade)
-                if(disponibilidade.equals("horario disponivel")) {
+                if(disponibilidade == "horario disponivel") {
                     startActivity(Intent(this, ConfirmReserveSelectedRestaurantActivity::class.java))
-                } else if(disponibilidade.equals("horario indisponivel")) {
+                } else if(disponibilidade == "horario indisponivel") {
                     Toast.makeText(this, "Horario indisponivel!\n Tente outro.", Toast.LENGTH_LONG).show()
                 }
             },
@@ -179,15 +191,9 @@ class SelectedRestaurantActivity : AppCompatActivity() {
                     else -> "Erro: ${error.toString()}"
                 }
                 Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
-            }
-        ) {
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                headers["Authorization"] = "Bearer $token"
-                headers["Content-Type"] = "application/json"
-                return headers
-            }
-        }
-        requestQueue.add(jsonObjectRequest)
+            },
+            headers
+        )
     }
+
 }

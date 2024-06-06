@@ -95,17 +95,5 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.908" />
 
-    <Button
-        android:id="@+id/buttonGoRestauranteSelecionado"
-        android:layout_width="178dp"
-        android:layout_height="34dp"
-        android:text="Button"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.446"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.131" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

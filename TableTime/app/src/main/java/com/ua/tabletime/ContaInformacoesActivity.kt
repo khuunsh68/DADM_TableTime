@@ -3,21 +3,14 @@ package com.ua.tabletime
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import com.android.volley.NetworkResponse
+import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.HttpHeaderParser
-import com.android.volley.toolbox.JsonArrayRequest
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -58,15 +51,14 @@ class ContaInformacoesActivity : AppCompatActivity() {
         val userId = sharedPreferences.getInt("user_id", -1)
 
         if (token == null || userId == -1) {
-            Toast.makeText(this, "Erro ao obter token ou ID do usuário", Toast.LENGTH_SHORT).show()
+            showToast("Erro ao obter token ou ID do usuário")
             return
         }
 
         val url = "https://dadm-api.vercel.app/getUser/$userId"
 
-        val requestQueue = Volley.newRequestQueue(this)
-
-        val jsonObjectRequest = object : JsonObjectRequest(
+        NetworkUtils.sendJsonObjectRequest(
+            this,
             Request.Method.GET, url, null,
             { response ->
                 val name = response.getString("nome")
@@ -76,17 +68,10 @@ class ContaInformacoesActivity : AppCompatActivity() {
                 userEmail.text = email
             },
             { error ->
-                Toast.makeText(this, "Falha ao buscar dados do usuário: ${error.message}", Toast.LENGTH_LONG).show()
-            }
-        ) {
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                headers["Authorization"] = "Bearer $token"
-                return headers
-            }
-        }
-
-        requestQueue.add(jsonObjectRequest)
+                showToast("Falha ao buscar dados do usuário: ${error.message}")
+            },
+            mapOf("Authorization" to "Bearer $token")
+        )
     }
 
     private fun fetchReservas() {
@@ -94,32 +79,27 @@ class ContaInformacoesActivity : AppCompatActivity() {
         val userId = sharedPreferences.getInt("user_id", -1)
 
         if (token == null || userId == -1) {
-            Toast.makeText(this, "Erro ao obter token ou ID do usuário", Toast.LENGTH_SHORT).show()
+            showToast("Erro ao obter token ou ID do usuário")
             return
         }
 
         val url = "https://dadm-api.vercel.app/get_all_reservas_from_user/$userId"
 
-        val requestQueue = Volley.newRequestQueue(this)
-
-        val jsonArrayRequest = object : JsonArrayRequest(
-            Request.Method.GET, url, null,
+        NetworkUtils.sendJsonArrayRequest(
+            this,
+            Request.Method.GET,
+            url,
             { response ->
                 displayReservas(response)
             },
             { error ->
-                Toast.makeText(this, "Falha ao buscar reservas: ${error.message}", Toast.LENGTH_LONG).show()
-            }
-        ) {
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                headers["Authorization"] = "Bearer $token"
-                return headers
-            }
-        }
-
-        requestQueue.add(jsonArrayRequest)
+                showToast("Falha ao buscar reservas: ${error.message}")
+            },
+            mapOf("Authorization" to "Bearer $token")
+        )
     }
+
+
 
     private fun displayReservas(reservas: JSONArray) {
         containerReservas.removeAllViews()
@@ -168,67 +148,62 @@ class ContaInformacoesActivity : AppCompatActivity() {
         val token = sharedPreferences.getString("jwt_token", null)
 
         if (token == null) {
-            Toast.makeText(this, "Erro ao obter token", Toast.LENGTH_SHORT).show()
+            showToast("Erro ao obter token")
             return
         }
 
         val url = "https://dadm-api.vercel.app/removeReserva"
-        val requestQueue = Volley.newRequestQueue(this)
 
-        val jsonObjectRequest = object : JsonObjectRequest(
+        NetworkUtils.sendJsonObjectRequest(
+            this,
             Request.Method.POST, url, reserva,
             { response ->
                 val message = response.optString("message")
-                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-                if (message == "Reserva apagada") {
+                showToast(message)
+                if (response.optBoolean("success")) {
                     fetchReservas()
                 }
             },
             { error ->
-                Toast.makeText(this, "Falha ao remover reserva: ${error.message}", Toast.LENGTH_LONG).show()
-            }
-        ) {
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                headers["Authorization"] = "Bearer $token"
-                headers["Content-Type"] = "application/json"
-                return headers
-            }
-        }
-
-        requestQueue.add(jsonObjectRequest)
+                val response = error.networkResponse
+                if (response != null && response.data != null) {
+                    val jsonError = String(response.data)
+                    val errorObj = JSONObject(jsonError)
+                    val errorMessage = errorObj.optString("message", "Erro desconhecido")
+                    showToast(errorMessage)
+                } else {
+                    showToast("Falha ao remover reserva: ${error.message}")
+                }
+            },
+            mapOf("Authorization" to "Bearer $token", "Content-Type" to "application/json")
+        )
     }
-
 
     private fun fetchRestaurantName(restaurantId: Int, callback: (String) -> Unit) {
         val token = sharedPreferences.getString("jwt_token", null)
 
         if (token == null) {
-            Toast.makeText(this, "Erro ao obter token", Toast.LENGTH_SHORT).show()
+            showToast("Erro ao obter token")
             return
         }
 
         val url = "https://dadm-api.vercel.app/get_name_restaurant/$restaurantId"
 
-        val requestQueue = Volley.newRequestQueue(this)
-
-        val jsonObjectRequest = object : JsonObjectRequest(
+        NetworkUtils.sendJsonObjectRequest(
+            this,
             Request.Method.GET, url, null,
             { response ->
                 val restaurantName = response.getString("nome")
                 callback(restaurantName)
             },
             { error ->
-                Toast.makeText(this, "Falha ao buscar nome do restaurante: ${error.message}", Toast.LENGTH_LONG).show()
-            }
-        ) {
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                headers["Authorization"] = "Bearer $token"
-                return headers
-            }
-        }
+                showToast("Falha ao buscar nome do restaurante: ${error.message}")
+            },
+            mapOf("Authorization" to "Bearer $token")
+        )
+    }
 
-        requestQueue.add(jsonObjectRequest)
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
