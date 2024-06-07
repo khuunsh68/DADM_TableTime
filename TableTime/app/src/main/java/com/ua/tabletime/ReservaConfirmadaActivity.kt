@@ -3,14 +3,18 @@ package com.ua.tabletime
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
-class ReservaConfirmadaActivity : AppCompatActivity() {
+class ReservaConfirmadaActivity: AppCompatActivity() {
 
     lateinit var btnVoltarHomepage: Button
+    lateinit var textViewNomeRestaurante: TextView
+    lateinit var textViewAvaliacaoRestaurante: TextView
+    lateinit var textViewTipoCozinhaRestaurante: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,12 +26,27 @@ class ReservaConfirmadaActivity : AppCompatActivity() {
             insets
         }
 
-
         btnVoltarHomepage = findViewById(R.id.buttonVoltarHomepage)
+        textViewNomeRestaurante = findViewById(R.id.textViewNomeRestauranteSelecionado)
+        textViewAvaliacaoRestaurante = findViewById(R.id.textViewAvaliacaoRestauranteSelecionado)
+        textViewTipoCozinhaRestaurante = findViewById(R.id.textViewTipoCozinhaRestauranteSelecionado)
+
+        val sharedPref = getSharedPreferences("appPrefs", MODE_PRIVATE)
+
+        val id_restaurante = sharedPref.getInt("id_restaurante", 0)
+        val quantidade = sharedPref.getInt("quantidade", 0)
+        val dataReserva = sharedPref.getString("dataReserva", "")
+        val horario = sharedPref.getString("horario", "")
+        val restaurantName = sharedPref.getString("restaurant_name", "")
+        val restaurantAvaliacao = sharedPref.getFloat("restaurant_avaliacao", 0.0f).toDouble()
+        val restaurantCuisine = sharedPref.getString("restaurant_cuisine", "")
+
+        textViewNomeRestaurante.text = restaurantName
+        textViewAvaliacaoRestaurante.text = restaurantAvaliacao.toString()
+        textViewTipoCozinhaRestaurante.text = restaurantCuisine
 
         btnVoltarHomepage.setOnClickListener {
             startActivity(Intent(this, HomepageActivity::class.java))
         }
-
     }
 }

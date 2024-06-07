@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -24,6 +25,7 @@ class SelectedRestaurantActivity : AppCompatActivity() {
     lateinit var txtNomeRestauranteSelecionado: TextView
     lateinit var txtAvaliacaoRestauranteSelecionado: TextView
     lateinit var txtTipoCozinhaRestauranteSelecionado: TextView
+    lateinit var imageViewRestauranteSelecionado: ImageView
     lateinit var buttonVerificarDisponibilidade: Button
     lateinit var editTextNumeroPessoas: EditText
     lateinit var editTextDataHora: EditText
@@ -31,6 +33,12 @@ class SelectedRestaurantActivity : AppCompatActivity() {
     private var selectedDate: String? = null
     private var selectedTime: String? = null
     private var restaurantId: Int = 0
+
+    // Atributos para armazenar os dados do restaurante
+    private var restaurantName: String? = null
+    private var restaurantAvaliacao: Double = 0.0
+    private var restaurantImage: String? = null
+    private var restaurantCuisine: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +55,8 @@ class SelectedRestaurantActivity : AppCompatActivity() {
             findViewById(R.id.textViewAvaliacaoRestauranteSelecionado)
         txtTipoCozinhaRestauranteSelecionado =
             findViewById(R.id.textViewTipoCozinhaRestauranteSelecionado)
+        imageViewRestauranteSelecionado =
+            findViewById(R.id.imageViewRestauranteSelecionado)
         buttonVerificarDisponibilidade = findViewById(R.id.buttonVerificarDisponibilidade)
         editTextNumeroPessoas = findViewById(R.id.editTextNumeroPessoas)
         editTextDataHora = findViewById(R.id.editTextDataHora)
@@ -57,6 +67,13 @@ class SelectedRestaurantActivity : AppCompatActivity() {
         val restaurantImage = intent.getStringExtra("RESTAURANT_IMAGE")
         val restaurantCuisine = intent.getStringExtra("RESTAURANT_CUISINE")
 
+        val sharedPref = getSharedPreferences("appPrefs", MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putString("restaurant_name", restaurantName)
+            putFloat("restaurant_avaliacao", restaurantAvaliacao.toFloat())
+            putString("restaurant_cuisine", restaurantCuisine)
+            apply()
+        }
 
         txtNomeRestauranteSelecionado.text = restaurantName
         txtAvaliacaoRestauranteSelecionado.text = restaurantAvaliacao.toString()
@@ -178,7 +195,7 @@ class SelectedRestaurantActivity : AppCompatActivity() {
 
                 Log.d("ddd", disponibilidade)
                 if(disponibilidade == "horario disponivel") {
-                    startActivity(Intent(this, ConfirmReserveSelectedRestaurantActivity::class.java))
+                    startActivity(Intent(this,  ConfirmReserveSelectedRestaurantActivity::class.java))
                 } else if(disponibilidade == "horario indisponivel") {
                     Toast.makeText(this, "Horario indisponivel!\n Tente outro.", Toast.LENGTH_LONG).show()
                 }

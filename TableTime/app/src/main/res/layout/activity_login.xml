@@ -25,14 +25,11 @@
         android:id="@+id/editTextEmail"
         android:layout_width="300dp"
         android:layout_height="47dp"
-        android:layout_marginStart="55dp"
-        android:layout_marginEnd="55dp"
         android:ems="10"
         android:hint="Email"
         android:inputType="textEmailAddress"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textTitulo"
         app:layout_constraintVertical_bias="0.359" />
@@ -62,7 +59,7 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.223" />
+        app:layout_constraintVertical_bias="0.219" />
 
     <Button
         android:id="@+id/buttonLogin"
@@ -89,20 +86,20 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.862" />
+        app:layout_constraintVertical_bias="0.86" />
 
     <Button
         android:id="@+id/buttonCriarConta"
         android:layout_width="300dp"
         android:layout_height="46dp"
+        android:layout_marginTop="94dp"
         android:backgroundTint="#000000"
         android:text="CRIAR CONTA"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewNaoConta"
-        app:layout_constraintVertical_bias="0.387" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonLogin"
+        app:layout_constraintVertical_bias="0.53" />
 
     <TextView
         android:id="@+id/textViewErro"
@@ -123,14 +120,14 @@
         android:layout_height="wrap_content"
         android:text="Login"
         android:textAlignment="center"
-        android:textSize="24sp"
+        android:textSize="40sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.331" />
+        app:layout_constraintVertical_bias="0.302" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

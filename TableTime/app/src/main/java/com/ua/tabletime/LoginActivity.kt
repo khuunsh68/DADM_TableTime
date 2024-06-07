@@ -1,5 +1,6 @@
 package com.ua.tabletime
 
+import android.app.AlertDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -10,8 +11,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import com.android.volley.Request
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
+import com.android.volley.VolleyError
 import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
@@ -36,17 +36,13 @@ class LoginActivity : AppCompatActivity() {
             val password = inputPassword.text.toString()
 
             if (email.isBlank()) {
-                msgErro.text = "Campo de email vazio!"
-                Toast.makeText(applicationContext, "Campo de email vazio!", Toast.LENGTH_LONG).show()
+                showErrorDialog("Campo de email vazio!")
             } else if (password.isBlank()) {
-                msgErro.text = "Campo de password vazio!"
-                Toast.makeText(applicationContext, "Campo de password vazio!", Toast.LENGTH_LONG).show()
+                showErrorDialog("Campo de password vazio!")
             } else if (!isValidEmail(email)) {
-                msgErro.text = "Formato de email inválido!"
-                Toast.makeText(applicationContext, "Formato de email inválido!", Toast.LENGTH_LONG).show()
+                showErrorDialog("Formato de email inválido!")
             } else if (!isValidPassword(password)) {
-                msgErro.text = "A senha deve ter pelo menos 8 caracteres!"
-                Toast.makeText(applicationContext, "A senha deve ter pelo menos 8 caracteres!", Toast.LENGTH_LONG).show()
+                showErrorDialog("A senha deve ter pelo menos 8 caracteres!")
             } else {
                 fazerLogin(email, password)
             }
@@ -73,11 +69,6 @@ class LoginActivity : AppCompatActivity() {
             put("email", email)
             put("password", password)
         }
-
-        val sharedPref = getSharedPreferences("appPrefs", MODE_PRIVATE)
-        val token = sharedPref.getString("jwt_token", "")
-
-        val headers = mapOf("Authorization" to "Bearer $token")
 
         NetworkUtils.sendJsonObjectRequest(
             this,
@@ -108,13 +99,23 @@ class LoginActivity : AppCompatActivity() {
                 buttonLogin.isEnabled = true
                 val errorMsg = when (error.networkResponse?.statusCode) {
                     400 -> "Erro ao fazer login: parâmetros inválidos"
+                    401 -> "Erro ao fazer login: credenciais incorretas"
                     404 -> "Erro ao fazer login: verifique suas credenciais"
                     else -> "Erro ao fazer login: ${error.message}"
                 }
+                showErrorDialog(errorMsg)
                 msgErro.text = errorMsg
-                Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
-            },
-            headers
+            }
         )
+    }
+
+    private fun showErrorDialog(message: String) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Erro de Login")
+        builder.setMessage(message)
+        builder.setPositiveButton("OK") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.create().show()
     }
 }

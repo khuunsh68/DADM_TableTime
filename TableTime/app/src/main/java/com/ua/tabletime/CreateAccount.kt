@@ -1,5 +1,6 @@
 package com.ua.tabletime
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -47,17 +48,13 @@ class CreateAccount : AppCompatActivity() {
             val repeatPassword = inputRepeatPassword.text.toString()
 
             if (nome.isBlank() || email.isBlank() || password.isBlank() || repeatPassword.isBlank()) {
-                msgErro.text = "Um ou mais campos vazios!"
-                Toast.makeText(this, "Um ou mais campos vazios!", Toast.LENGTH_LONG).show()
+                showErrorDialog("Um ou mais campos vazios!")
             } else if (!isValidEmail(email)) {
-                msgErro.text = "Formato de email inválido!"
-                Toast.makeText(this, "Formato de email inválido!", Toast.LENGTH_LONG).show()
+                showErrorDialog("Formato de email inválido!")
             } else if (!isValidPassword(password)) {
-                msgErro.text = "A senha deve ter pelo menos 8 caracteres!"
-                Toast.makeText(this, "A senha deve ter pelo menos 8 caracteres!", Toast.LENGTH_LONG).show()
+                showErrorDialog("A senha deve ter pelo menos 8 caracteres!")
             } else if (password != repeatPassword) {
-                msgErro.text = "As senhas não coincidem!"
-                Toast.makeText(this, "As senhas não coincidem!", Toast.LENGTH_LONG).show()
+                showErrorDialog("As senhas não coincidem!")
             } else {
                 buttonCriarConta.isEnabled = false
                 criarConta(nome, email, password)
@@ -101,15 +98,25 @@ class CreateAccount : AppCompatActivity() {
                 Log.e("CreateAccount", "Error: ${error.message}", error)
                 val errorMsg = if (error.networkResponse != null) {
                     when (error.networkResponse.statusCode) {
-                        400 -> "Erro ao criar conta: parâmetros inválidos ou usuário já existe"
+                        400 -> "Erro ao criar conta: parâmetros inválidos ou utilizador já existe"
                         else -> "Erro ao criar conta: ${error.message}"
                     }
                 } else {
                     "Erro ao criar conta: ${error.message}"
                 }
-                msgErro.text = errorMsg
-                Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
+                showErrorDialog(errorMsg)
             }
         )
     }
+
+    private fun showErrorDialog(message: String) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Erro de Criação de Conta")
+        builder.setMessage(message)
+        builder.setPositiveButton("OK") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.create().show()
+    }
+
 }

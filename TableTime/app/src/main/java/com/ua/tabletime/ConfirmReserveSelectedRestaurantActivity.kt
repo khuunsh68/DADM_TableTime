@@ -15,6 +15,9 @@ import org.json.JSONObject
 
 class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
 
+    lateinit var txtNomeRestauranteSelecionado: TextView
+    lateinit var txtAvaliacaoRestauranteSelecionado: TextView
+    lateinit var txtTipoCozinhaRestauranteSelecionado: TextView
     lateinit var txtViewInfoNumeroPessoas: TextView
     lateinit var txtViewInfoData: TextView
     lateinit var txtViewInfoHorario: TextView
@@ -26,6 +29,10 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
     private var horario: String? = null
     private var isRequestInProgress = false
 
+    private var restaurantName: String? = null
+    private var restaurantAvaliacao: Double = 0.0
+    private var restaurantCuisine: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -36,6 +43,11 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
             insets
         }
 
+        txtNomeRestauranteSelecionado = findViewById(R.id.textViewNomeRestauranteSelecionado)
+        txtAvaliacaoRestauranteSelecionado =
+            findViewById(R.id.textViewAvaliacaoRestauranteSelecionado)
+        txtTipoCozinhaRestauranteSelecionado =
+            findViewById(R.id.textViewTipoCozinhaRestauranteSelecionado)
         txtViewInfoNumeroPessoas = findViewById(R.id.textViewInfoNumeroPessoas)
         txtViewInfoData = findViewById(R.id.textViewInfoData)
         txtViewInfoHorario = findViewById(R.id.textViewInfoHorario)
@@ -47,10 +59,16 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
         quantidade = sharedPref.getInt("quantidade", 0)
         dataReserva = sharedPref.getString("dataReserva", "")
         horario = sharedPref.getString("horario", "")
+        restaurantName = sharedPref.getString("restaurant_name", "")
+        restaurantAvaliacao = sharedPref.getFloat("restaurant_avaliacao", 0.0f).toDouble()
+        restaurantCuisine = sharedPref.getString("restaurant_cuisine", "")
 
+        txtNomeRestauranteSelecionado.text = restaurantName
+        txtAvaliacaoRestauranteSelecionado.text = restaurantAvaliacao.toString()
+        txtTipoCozinhaRestauranteSelecionado.text = restaurantCuisine
+        txtViewInfoNumeroPessoas.text = quantidade.toString()
         txtViewInfoData.text = dataReserva
         txtViewInfoHorario.text = horario
-        txtViewInfoNumeroPessoas.text = quantidade.toString()
 
         Log.d(
             "ccc", "id_restaurante: $id_restaurante,\n" +

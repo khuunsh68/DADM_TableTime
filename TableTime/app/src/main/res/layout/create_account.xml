@@ -54,9 +54,12 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="62dp"
         android:text="Já possui uma conta?"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonCriarConta" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonCriarConta"
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/buttonLogin"
@@ -69,7 +72,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonCriarConta"
-        app:layout_constraintVertical_bias="0.24" />
+        app:layout_constraintVertical_bias="0.19" />
 
     <TextView
         android:id="@+id/textViewErro"
@@ -89,13 +92,12 @@
         android:id="@+id/textViewLogin2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="16dp"
         android:text="Criar Conta"
         android:textAlignment="center"
-        android:textSize="24sp"
+        android:textSize="40dp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textTitulo" />
 
