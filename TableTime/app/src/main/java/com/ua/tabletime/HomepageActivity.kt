@@ -42,7 +42,12 @@ class HomepageActivity : AppCompatActivity() {
         }
 
         progressBarHome = findViewById(R.id.progressBarHome)
+        btnProfilePage = findViewById(R.id.btnProfilePage)
         frameProgressHome = findViewById(R.id.frameProgressHome)
+        btnProfilePage = findViewById(R.id.btnProfilePage)
+        btnSearch = findViewById(R.id.buttonSearch)
+        helloUser = findViewById(R.id.helloUser)
+        searchView = findViewById(R.id.searchView)
         recyclerView = findViewById(R.id.recyclerViewRestaurants)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -63,10 +68,6 @@ class HomepageActivity : AppCompatActivity() {
         progressBarHome.visibility = View.VISIBLE
         fetchRestaurantDataFromApi()
 
-        btnProfilePage = findViewById(R.id.btnProfilePage)
-        btnSearch = findViewById(R.id.buttonSearch)
-        helloUser = findViewById(R.id.helloUser)
-
         btnProfilePage.setOnClickListener {
             startActivity(Intent(this, ContaInformacoesActivity::class.java))
         }
@@ -84,10 +85,10 @@ class HomepageActivity : AppCompatActivity() {
             helloUser.text = "Olá, $name"
         }
 
-        searchView = findViewById(R.id.searchView)
     }
 
     private fun fetchRestaurantDataFromApi() {
+        setButtonsEnabled(false)
         val url = "https://dadm-api.vercel.app/getAllRestaurants"
 
         val sharedPref = getSharedPreferences("appPrefs", MODE_PRIVATE)
@@ -119,9 +120,13 @@ class HomepageActivity : AppCompatActivity() {
                 adapter.updateData(restaurantList)
                 frameProgressHome.visibility = View.GONE
                 progressBarHome.visibility = View.GONE
+                setButtonsEnabled(true)
             },
             { error ->
                 Toast.makeText(this, "Failed to fetch restaurants: ${error.message}", Toast.LENGTH_LONG).show()
+                frameProgressHome.visibility = View.GONE
+                progressBarHome.visibility = View.GONE
+                setButtonsEnabled(true)
             },
             headers
         )
@@ -137,4 +142,10 @@ class HomepageActivity : AppCompatActivity() {
             adapter.updateData(filteredList)
         }
     }
+
+    private fun setButtonsEnabled(enabled: Boolean) {
+        btnProfilePage.isEnabled = enabled
+        btnSearch.isEnabled = enabled
+    }
+
 }

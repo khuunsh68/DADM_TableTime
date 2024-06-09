@@ -59,9 +59,13 @@ class ContaInformacoesActivity : AppCompatActivity() {
         val userId = sharedPreferences.getInt("user_id", -1)
 
         if (token == null || userId == -1) {
-            showDialog("Erro", "Erro ao obter token ou ID do usuário")
+            showDialog("Erro", "Erro ao obter token ou ID do utilizador")
+            frameProgressHome.visibility = View.GONE
+            progressBarHome.visibility = View.GONE
+            setButtonsEnabled(true)
             return
         }
+
 
         val url = "https://dadm-api.vercel.app/getUser"
 
@@ -74,20 +78,29 @@ class ContaInformacoesActivity : AppCompatActivity() {
 
                 userName.text = name
                 userEmail.text = email
+
+                setButtonsEnabled(true)
             },
             { error ->
-                showDialog("Erro", "Falha ao buscar dados do usuário: ${error.message}")
+                showDialog("Erro", "Falha ao recuperar dados do utilizador: ${error.message}")
+                frameProgressHome.visibility = View.GONE
+                progressBarHome.visibility = View.GONE
+                setButtonsEnabled(true)
             },
             mapOf("Authorization" to "Bearer $token")
         )
     }
 
     private fun fetchReservas() {
+        setButtonsEnabled(false)
         val token = sharedPreferences.getString("jwt_token", null)
         val userId = sharedPreferences.getInt("user_id", -1)
 
         if (token == null || userId == -1) {
             showDialog("Erro", "Erro ao obter token ou ID do usuário")
+            frameProgressHome.visibility = View.GONE
+            progressBarHome.visibility = View.GONE
+            setButtonsEnabled(true)
             return
         }
 
@@ -99,9 +112,13 @@ class ContaInformacoesActivity : AppCompatActivity() {
             url,
             { response ->
                 displayReservas(response)
+                setButtonsEnabled(true)
             },
             { error ->
                 showDialog("Erro", "Falha ao buscar reservas: ${error.message}")
+                frameProgressHome.visibility = View.GONE
+                progressBarHome.visibility = View.GONE
+                setButtonsEnabled(true)
             },
             mapOf("Authorization" to "Bearer $token")
         )
@@ -186,10 +203,14 @@ class ContaInformacoesActivity : AppCompatActivity() {
     }
 
     private fun fetchRestaurantName(restaurantId: Int, callback: (String) -> Unit) {
+        setButtonsEnabled(false)
         val token = sharedPreferences.getString("jwt_token", null)
 
         if (token == null) {
             showDialog("Erro", "Erro ao obter token")
+            frameProgressHome.visibility = View.GONE
+            progressBarHome.visibility = View.GONE
+            setButtonsEnabled(true)
             return
         }
 
@@ -203,9 +224,13 @@ class ContaInformacoesActivity : AppCompatActivity() {
                 callback(restaurantName)
                 frameProgressHome.visibility = View.GONE
                 progressBarHome.visibility = View.GONE
+                setButtonsEnabled(true)
             },
             { error ->
-                showDialog("Erro", "Falha ao buscar nome do restaurante: ${error.message}")
+                showDialog("Erro", "Falha ao obter nome do restaurante: ${error.message}")
+                frameProgressHome.visibility = View.GONE
+                progressBarHome.visibility = View.GONE
+                setButtonsEnabled(true)
             },
             mapOf("Authorization" to "Bearer $token")
         )
@@ -217,5 +242,10 @@ class ContaInformacoesActivity : AppCompatActivity() {
         builder.setMessage(message)
         builder.setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
         builder.create().show()
+    }
+
+    private fun setButtonsEnabled(enabled: Boolean) {
+        buttonTerminarSessao.isEnabled = enabled
+        textTitulo.isEnabled = enabled
     }
 }

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.android.volley.Request
+import com.squareup.picasso.Picasso
 import org.json.JSONObject
 
 class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
@@ -18,6 +20,7 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
     lateinit var txtNomeRestauranteSelecionado: TextView
     lateinit var txtAvaliacaoRestauranteSelecionado: TextView
     lateinit var txtTipoCozinhaRestauranteSelecionado: TextView
+    lateinit var imageViewRestauranteSelecionado: ImageView
     lateinit var textEndereco: TextView
     lateinit var txtViewInfoNumeroPessoas: TextView
     lateinit var txtViewInfoData: TextView
@@ -29,11 +32,6 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
     private var dataReserva: String? = null
     private var horario: String? = null
     private var isRequestInProgress = false
-
-    private var restaurantName: String? = null
-    private var restaurantAvaliacao: Double = 0.0
-    private var restaurantCuisine: String? = null
-    private var restaurantEndereco: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +48,7 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
             findViewById(R.id.textViewAvaliacaoRestauranteSelecionado)
         txtTipoCozinhaRestauranteSelecionado =
             findViewById(R.id.textViewTipoCozinhaRestauranteSelecionado)
+        imageViewRestauranteSelecionado = findViewById(R.id.imageViewRestauranteSelecionado)
         textEndereco = findViewById(R.id.textEndereco)
         txtViewInfoNumeroPessoas = findViewById(R.id.textViewInfoNumeroPessoas)
         txtViewInfoData = findViewById(R.id.textViewInfoData)
@@ -62,11 +61,17 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
         quantidade = sharedPref.getInt("quantidade", 0)
         dataReserva = sharedPref.getString("dataReserva", "")
         horario = sharedPref.getString("horario", "")
-        restaurantName = sharedPref.getString("restaurant_name", "")
-        restaurantAvaliacao = sharedPref.getFloat("restaurant_avaliacao", 0.0f).toDouble()
-        restaurantCuisine = sharedPref.getString("restaurant_cuisine", "")
-        restaurantEndereco = sharedPref.getString("restaurant_endereco", "")
+        val restaurantName = sharedPref.getString("restaurant_name", "")
+        val restaurantAvaliacao = sharedPref.getFloat("restaurant_avaliacao", 0.0f).toDouble()
+        val restaurantCuisine = sharedPref.getString("restaurant_cuisine", "")
+        val restaurantEndereco = sharedPref.getString("restaurant_endereco", "")
+        val restaurantImage = sharedPref.getString("restaurant_image", "")
 
+        Picasso.get()
+            .load(restaurantImage)
+            .fit()
+            .centerCrop()
+            .into(imageViewRestauranteSelecionado)
         txtNomeRestauranteSelecionado.text = restaurantName
         txtAvaliacaoRestauranteSelecionado.text = String.format("%.1f", restaurantAvaliacao)
         txtTipoCozinhaRestauranteSelecionado.text = restaurantCuisine
@@ -158,8 +163,7 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
             Request.Method.POST, url, jsonObject,
             { response ->
                 isRequestInProgress = false
-                showDialog("Sucesso", "Reserva adicionada com sucesso!")
-                startActivity(Intent(this, ReservaConfirmadaActivity::class.java))
+                showDialogAndStartActivity("Sucesso", "Reserva adicionada com sucesso!", ReservaConfirmadaActivity::class.java)
             },
             { error ->
                 isRequestInProgress = false
@@ -180,6 +184,17 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
         builder.setTitle(title)
         builder.setMessage(message)
         builder.setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+        builder.create().show()
+    }
+
+    private fun showDialogAndStartActivity(title: String, message: String, activityClass: Class<*>) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
+        builder.setMessage(message)
+        builder.setPositiveButton("OK") { dialog, _ ->
+            dialog.dismiss()
+            startActivity(Intent(this, activityClass))
+        }
         builder.create().show()
     }
 }

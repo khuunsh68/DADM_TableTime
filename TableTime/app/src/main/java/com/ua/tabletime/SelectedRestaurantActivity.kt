@@ -31,6 +31,7 @@ class SelectedRestaurantActivity : AppCompatActivity() {
     lateinit var buttonVerificarDisponibilidade: Button
     lateinit var editTextNumeroPessoas: EditText
     lateinit var editTextDataHora: EditText
+    lateinit var btnVoltar: Button
 
     private var selectedDate: String? = null
     private var selectedTime: String? = null
@@ -54,6 +55,7 @@ class SelectedRestaurantActivity : AppCompatActivity() {
         buttonVerificarDisponibilidade = findViewById(R.id.buttonVerificarDisponibilidade)
         editTextNumeroPessoas = findViewById(R.id.editTextNumeroPessoas)
         editTextDataHora = findViewById(R.id.editTextDataHora)
+        btnVoltar = findViewById(R.id.btnVoltar)
 
         restaurantId = intent.getIntExtra("RESTAURANT_ID", 0)
         val restaurantName = intent.getStringExtra("RESTAURANT_NAME")
@@ -68,6 +70,7 @@ class SelectedRestaurantActivity : AppCompatActivity() {
             putFloat("restaurant_avaliacao", restaurantAvaliacao.toFloat())
             putString("restaurant_cuisine", restaurantCuisine)
             putString("restaurant_endereco", restaurantEndereco)
+            putString("restaurant_image", restaurantImage)
             apply()
         }
 
@@ -118,6 +121,10 @@ class SelectedRestaurantActivity : AppCompatActivity() {
                 showDialog("Erro", "Por favor, insira a quantidade de pessoas.")
             }
         }
+
+        btnVoltar.setOnClickListener {
+            finish()
+        }
     }
 
     private fun showDateTimePicker() {
@@ -156,8 +163,6 @@ class SelectedRestaurantActivity : AppCompatActivity() {
             put("quantidade", quantidade)
         }
 
-        Log.d("aaa", "id_restaurante: $id_restaurante,\ndata: $selectedDate,\nhorario: $selectedTime,\nquantidade: $quantidade")
-
         val headers = HashMap<String, String>()
         headers["Authorization"] = "Bearer $token"
         headers["Content-Type"] = "application/json"
@@ -172,8 +177,7 @@ class SelectedRestaurantActivity : AppCompatActivity() {
                 Log.d("ddd", disponibilidade)
                 if (disponibilidade == "horario disponivel") {
                     buttonVerificarDisponibilidade.isEnabled = true;
-                    showDialog("Disponibilidade", "Horário disponível!")
-                    startActivity(Intent(this, ConfirmReserveSelectedRestaurantActivity::class.java))
+                    showDialogAndStartActivity("Disponibilidade", "Horário disponível!", ConfirmReserveSelectedRestaurantActivity::class.java)
                 } else if (disponibilidade == "horario indisponivel") {
                     showDialog("Indisponível", "Horário indisponível!\nTente outro.")
                     buttonVerificarDisponibilidade.isEnabled = true
@@ -198,6 +202,17 @@ class SelectedRestaurantActivity : AppCompatActivity() {
         builder.setTitle(title)
         builder.setMessage(message)
         builder.setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+        builder.create().show()
+    }
+
+    private fun showDialogAndStartActivity(title: String, message: String, activityClass: Class<*>) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
+        builder.setMessage(message)
+        builder.setPositiveButton("OK") { dialog, _ ->
+            dialog.dismiss()
+            startActivity(Intent(this, activityClass))
+        }
         builder.create().show()
     }
 }
