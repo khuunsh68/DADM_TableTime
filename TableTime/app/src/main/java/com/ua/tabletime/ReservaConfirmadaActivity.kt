@@ -15,6 +15,7 @@ class ReservaConfirmadaActivity: AppCompatActivity() {
     lateinit var textViewNomeRestaurante: TextView
     lateinit var textViewAvaliacaoRestaurante: TextView
     lateinit var textViewTipoCozinhaRestaurante: TextView
+    lateinit var textEndereco: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +31,7 @@ class ReservaConfirmadaActivity: AppCompatActivity() {
         textViewNomeRestaurante = findViewById(R.id.textViewNomeRestauranteSelecionado)
         textViewAvaliacaoRestaurante = findViewById(R.id.textViewAvaliacaoRestauranteSelecionado)
         textViewTipoCozinhaRestaurante = findViewById(R.id.textViewTipoCozinhaRestauranteSelecionado)
+        textEndereco = findViewById(R.id.textEndereco)
 
         val sharedPref = getSharedPreferences("appPrefs", MODE_PRIVATE)
 
@@ -40,10 +42,12 @@ class ReservaConfirmadaActivity: AppCompatActivity() {
         val restaurantName = sharedPref.getString("restaurant_name", "")
         val restaurantAvaliacao = sharedPref.getFloat("restaurant_avaliacao", 0.0f).toDouble()
         val restaurantCuisine = sharedPref.getString("restaurant_cuisine", "")
+        val restaurantEndereco = sharedPref.getString("restaurant_endereco", "")
 
         textViewNomeRestaurante.text = restaurantName
-        textViewAvaliacaoRestaurante.text = restaurantAvaliacao.toString()
+        textViewAvaliacaoRestaurante.text = String.format("%.1f", restaurantAvaliacao)
         textViewTipoCozinhaRestaurante.text = restaurantCuisine
+        textEndereco.text = restaurantEndereco
 
         btnVoltarHomepage.setOnClickListener {
             startActivity(Intent(this, HomepageActivity::class.java))

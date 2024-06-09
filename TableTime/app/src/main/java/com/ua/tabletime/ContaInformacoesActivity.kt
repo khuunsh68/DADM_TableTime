@@ -4,11 +4,13 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import org.json.JSONArray
@@ -22,11 +24,15 @@ class ContaInformacoesActivity : AppCompatActivity() {
     private lateinit var userEmail: TextView
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var containerReservas: LinearLayout
+    private lateinit var frameProgressHome: FrameLayout
+    private lateinit var progressBarHome: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_conta_informacoes)
 
+        progressBarHome = findViewById(R.id.progressBarHome)
+        frameProgressHome = findViewById(R.id.frameProgressHome)
         userName = findViewById(R.id.userName)
         userEmail = findViewById(R.id.userEmail)
         buttonTerminarSessao = findViewById(R.id.buttonTerminarSessao)
@@ -34,6 +40,8 @@ class ContaInformacoesActivity : AppCompatActivity() {
         containerReservas = findViewById(R.id.containerReservas)
         sharedPreferences = getSharedPreferences("appPrefs", MODE_PRIVATE)
 
+        frameProgressHome.visibility = View.VISIBLE
+        progressBarHome.visibility = View.VISIBLE
         fetchUserData()
         fetchReservas()
 
@@ -51,11 +59,11 @@ class ContaInformacoesActivity : AppCompatActivity() {
         val userId = sharedPreferences.getInt("user_id", -1)
 
         if (token == null || userId == -1) {
-            showToast("Erro ao obter token ou ID do usuário")
+            showDialog("Erro", "Erro ao obter token ou ID do usuário")
             return
         }
 
-        val url = "https://dadm-api.vercel.app/getUser/$userId"
+        val url = "https://dadm-api.vercel.app/getUser"
 
         NetworkUtils.sendJsonObjectRequest(
             this,
@@ -68,7 +76,7 @@ class ContaInformacoesActivity : AppCompatActivity() {
                 userEmail.text = email
             },
             { error ->
-                showToast("Falha ao buscar dados do usuário: ${error.message}")
+                showDialog("Erro", "Falha ao buscar dados do usuário: ${error.message}")
             },
             mapOf("Authorization" to "Bearer $token")
         )
@@ -79,11 +87,11 @@ class ContaInformacoesActivity : AppCompatActivity() {
         val userId = sharedPreferences.getInt("user_id", -1)
 
         if (token == null || userId == -1) {
-            showToast("Erro ao obter token ou ID do usuário")
+            showDialog("Erro", "Erro ao obter token ou ID do usuário")
             return
         }
 
-        val url = "https://dadm-api.vercel.app/get_all_reservas_from_user/$userId"
+        val url = "https://dadm-api.vercel.app/get_all_reservas_from_user"
 
         NetworkUtils.sendJsonArrayRequest(
             this,
@@ -93,13 +101,11 @@ class ContaInformacoesActivity : AppCompatActivity() {
                 displayReservas(response)
             },
             { error ->
-                showToast("Falha ao buscar reservas: ${error.message}")
+                showDialog("Erro", "Falha ao buscar reservas: ${error.message}")
             },
             mapOf("Authorization" to "Bearer $token")
         )
     }
-
-
 
     private fun displayReservas(reservas: JSONArray) {
         containerReservas.removeAllViews()
@@ -148,7 +154,7 @@ class ContaInformacoesActivity : AppCompatActivity() {
         val token = sharedPreferences.getString("jwt_token", null)
 
         if (token == null) {
-            showToast("Erro ao obter token")
+            showDialog("Erro", "Erro ao obter token")
             return
         }
 
@@ -159,7 +165,7 @@ class ContaInformacoesActivity : AppCompatActivity() {
             Request.Method.POST, url, reserva,
             { response ->
                 val message = response.optString("message")
-                showToast(message)
+                showDialog("Informação", message)
                 if (response.optBoolean("success")) {
                     fetchReservas()
                 }
@@ -170,9 +176,9 @@ class ContaInformacoesActivity : AppCompatActivity() {
                     val jsonError = String(response.data)
                     val errorObj = JSONObject(jsonError)
                     val errorMessage = errorObj.optString("message", "Erro desconhecido")
-                    showToast(errorMessage)
+                    showDialog("Erro", errorMessage)
                 } else {
-                    showToast("Falha ao remover reserva: ${error.message}")
+                    showDialog("Erro", "Falha ao remover reserva: ${error.message}")
                 }
             },
             mapOf("Authorization" to "Bearer $token", "Content-Type" to "application/json")
@@ -183,7 +189,7 @@ class ContaInformacoesActivity : AppCompatActivity() {
         val token = sharedPreferences.getString("jwt_token", null)
 
         if (token == null) {
-            showToast("Erro ao obter token")
+            showDialog("Erro", "Erro ao obter token")
             return
         }
 
@@ -195,15 +201,21 @@ class ContaInformacoesActivity : AppCompatActivity() {
             { response ->
                 val restaurantName = response.getString("nome")
                 callback(restaurantName)
+                frameProgressHome.visibility = View.GONE
+                progressBarHome.visibility = View.GONE
             },
             { error ->
-                showToast("Falha ao buscar nome do restaurante: ${error.message}")
+                showDialog("Erro", "Falha ao buscar nome do restaurante: ${error.message}")
             },
             mapOf("Authorization" to "Bearer $token")
         )
     }
 
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    private fun showDialog(title: String, message: String) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
+        builder.setMessage(message)
+        builder.setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+        builder.create().show()
     }
 }

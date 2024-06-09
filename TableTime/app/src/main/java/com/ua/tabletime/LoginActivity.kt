@@ -9,9 +9,7 @@ import android.util.Patterns
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import com.android.volley.Request
-import com.android.volley.VolleyError
 import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
@@ -77,23 +75,27 @@ class LoginActivity : AppCompatActivity() {
             jsonObject,
             { response ->
                 buttonLogin.isEnabled = true
-                Toast.makeText(this, "Login feito com sucesso!", Toast.LENGTH_LONG).show()
+                if (response.getString("resposta") == "sucesso") {
 
-                val token = response.getString("token")
-                val userId = response.getInt("id")
-                val name = response.getString("nome")
+                    val user = response.getJSONObject("user")
+                    val token = user.getString("token")
+                    val userId = user.getInt("id")
+                    val name = user.getString("nome")
 
-                Log.d("nome", name)
+                    Log.d("nome", name)
 
-                val sharedPref = getSharedPreferences("appPrefs", MODE_PRIVATE)
-                val editor = sharedPref.edit()
-                editor.putString("jwt_token", token)
-                editor.putInt("user_id", userId)
-                editor.putString("name", name)
-                editor.apply()
+                    val sharedPref = getSharedPreferences("appPrefs", MODE_PRIVATE)
+                    val editor = sharedPref.edit()
+                    editor.putString("jwt_token", token)
+                    editor.putInt("user_id", userId)
+                    editor.putString("name", name)
+                    editor.apply()
 
-                startActivity(Intent(this, HomepageActivity::class.java))
-                finish()
+                    startActivity(Intent(this, HomepageActivity::class.java))
+                    finish()
+                } else if (response.getString("resposta") == "Check credentials") {
+                    showErrorDialog("Credênciais erradas! Tente novamente!")
+                }
             },
             { error ->
                 buttonLogin.isEnabled = true
@@ -115,6 +117,18 @@ class LoginActivity : AppCompatActivity() {
         builder.setMessage(message)
         builder.setPositiveButton("OK") { dialog, _ ->
             dialog.dismiss()
+        }
+        builder.create().show()
+    }
+
+    private fun showSuccessDialog(message: String) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Login Bem-Sucedido")
+        builder.setMessage(message)
+        builder.setPositiveButton("OK") { dialog, _ ->
+            dialog.dismiss()
+            startActivity(Intent(this, HomepageActivity::class.java))
+            finish()
         }
         builder.create().show()
     }

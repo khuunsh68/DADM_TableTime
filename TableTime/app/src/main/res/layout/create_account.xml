@@ -78,7 +78,7 @@
         android:id="@+id/textViewErro"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Mensagem de erro"
+        android:text=""
         android:textAlignment="center"
         android:textColor="#F44336"
         app:layout_constraintBottom_toTopOf="@+id/textViewNaoConta"

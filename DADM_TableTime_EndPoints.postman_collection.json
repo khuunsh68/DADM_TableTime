@@ -1,0 +1,216 @@
+{
+	"info": {
+		"_postman_id": "eb21e27a-a95e-4611-8ead-e66225dbceed",
+		"name": "DADM_TableTime_EndPoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "33612435",
+		"_collection_link": "https://dadm-tabletime.postman.co/workspace/14917e6f-c7bf-49d4-aac4-d5287d7a7585/collection/32992217-eb21e27a-a95e-4611-8ead-e66225dbceed?action=share&source=collection_link&creator=33612435"
+	},
+	"item": [
+		{
+			"name": "home",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "https://dadm-api.vercel.app/",
+				"description": "### GET /home/\n\nThis endpoint retrieves the home data.\n\n#### Request Body\n\nThis request does not require a request body.\n\n#### Response\n\nThe response for this request is a JSON object with the following schema:\n\n``` json\n{\n  \"key1\": \"string\",\n  \"key2\": \"number\",\n  \"key3\": \"boolean\"\n}\n\n ```"
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": ""
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"example@gmail.com\",\r\n    \"password\": \"password\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://dadm-api.vercel.app/login"
+			},
+			"response": []
+		},
+		{
+			"name": "register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"nome\": \"João Silva\",\r\n    \"email\": \"joao@gmail.com\",\r\n    \"password\": \"joao00\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://dadm-api.vercel.app/register"
+			},
+			"response": []
+		},
+		{
+			"name": "getAllRestaurants",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": ""
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Autorization\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJleHAiOjE3MTUyNzEwOTd9.bq84smwL1KXKQPbNiT2-LFBidp3aQ4Z617A4rnjtWKA\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://dadm-api.vercel.app/getAllRestaurants"
+			},
+			"response": []
+		},
+		{
+			"name": "get_restaurant",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": ""
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://dadm-api.vercel.app/get_restaurant/"
+			},
+			"response": []
+		},
+		{
+			"name": "get_all_reservas_from_user",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": ""
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://dadm-api.vercel.app/get_all_reservas_from_user"
+			},
+			"response": []
+		},
+		{
+			"name": "get_name_restaurant",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://dadm-api.vercel.app/get_name_restaurant/"
+			},
+			"response": []
+		},
+		{
+			"name": "getUser",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": ""
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "https://dadm-api.vercel.app/getUser"
+			},
+			"response": []
+		},
+		{
+			"name": "verificarDisponibilidade",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": ""
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id_restaurante\": 1,\r\n    \"data_reserva\": \"2024-05-15\",\r\n    \"horario\": \"19:00:00\",\r\n    \"quantidade\": 2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://dadm-api.vercel.app/verificarDisponibilidade"
+			},
+			"response": []
+		},
+		{
+			"name": "addReserva",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": ""
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id_utilizador\": 3,\r\n    \"id_restaurante\": 5,\r\n    \"data_reserva\": \"2024-05-15\",\r\n    \"horario\": \"19:00:00\",\r\n    \"quantidade\": 2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://dadm-api.vercel.app/addReserva"
+			},
+			"response": []
+		},
+		{
+			"name": "removeReserva",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": ""
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id_utilizador\": 3,\r\n    \"id_restaurante\": 5,\r\n    \"data_reserva\": \"2024-05-15\",\r\n    \"horario\": \"19:00:00\",\r\n    \"quantidade\": 2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://dadm-api.vercel.app/removeReserva"
+			},
+			"response": []
+		}
+	]
+}

@@ -11,6 +11,7 @@ activity = "1.8.2"
 constraintlayout = "2.1.4"
 volley = "1.2.1"
 glide = "4.12.0"
+picasso = "2.8"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -24,6 +25,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide_compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
+picasso = { group = "com.squareup.picasso", name = "picasso", version.ref = "picasso" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

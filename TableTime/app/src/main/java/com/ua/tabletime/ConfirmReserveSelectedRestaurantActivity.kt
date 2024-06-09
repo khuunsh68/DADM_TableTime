@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -18,6 +18,7 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
     lateinit var txtNomeRestauranteSelecionado: TextView
     lateinit var txtAvaliacaoRestauranteSelecionado: TextView
     lateinit var txtTipoCozinhaRestauranteSelecionado: TextView
+    lateinit var textEndereco: TextView
     lateinit var txtViewInfoNumeroPessoas: TextView
     lateinit var txtViewInfoData: TextView
     lateinit var txtViewInfoHorario: TextView
@@ -32,6 +33,7 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
     private var restaurantName: String? = null
     private var restaurantAvaliacao: Double = 0.0
     private var restaurantCuisine: String? = null
+    private var restaurantEndereco: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +50,7 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
             findViewById(R.id.textViewAvaliacaoRestauranteSelecionado)
         txtTipoCozinhaRestauranteSelecionado =
             findViewById(R.id.textViewTipoCozinhaRestauranteSelecionado)
+        textEndereco = findViewById(R.id.textEndereco)
         txtViewInfoNumeroPessoas = findViewById(R.id.textViewInfoNumeroPessoas)
         txtViewInfoData = findViewById(R.id.textViewInfoData)
         txtViewInfoHorario = findViewById(R.id.textViewInfoHorario)
@@ -62,10 +65,12 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
         restaurantName = sharedPref.getString("restaurant_name", "")
         restaurantAvaliacao = sharedPref.getFloat("restaurant_avaliacao", 0.0f).toDouble()
         restaurantCuisine = sharedPref.getString("restaurant_cuisine", "")
+        restaurantEndereco = sharedPref.getString("restaurant_endereco", "")
 
         txtNomeRestauranteSelecionado.text = restaurantName
-        txtAvaliacaoRestauranteSelecionado.text = restaurantAvaliacao.toString()
+        txtAvaliacaoRestauranteSelecionado.text = String.format("%.1f", restaurantAvaliacao)
         txtTipoCozinhaRestauranteSelecionado.text = restaurantCuisine
+        textEndereco.text = restaurantEndereco
         txtViewInfoNumeroPessoas.text = quantidade.toString()
         txtViewInfoData.text = dataReserva
         txtViewInfoHorario.text = horario
@@ -82,12 +87,12 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
                 fetchVerificarDisponibilidadeFromApi()
                 btnConfirmarReserva.isEnabled = false
             } else {
-                Toast.makeText(this, "Requisição já em andamento. Por favor, aguarde.", Toast.LENGTH_SHORT).show()
+                showDialog("Atenção", "Requisição já em andamento. Por favor, aguarde.")
             }
         }
 
         btnVoltar.setOnClickListener {
-            startActivity(Intent(this, SelectedRestaurantActivity::class.java))
+            finish()
         }
     }
 
@@ -110,24 +115,23 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
             { response ->
                 isRequestInProgress = false
                 val disponibilidade = response.getString("disponibilidade")
-                Toast.makeText(this, disponibilidade, Toast.LENGTH_LONG).show()
 
                 Log.d("ddd", disponibilidade)
                 if (disponibilidade == "horario disponivel") {
                     addReserva()
                 } else if (disponibilidade == "horario indisponivel") {
-                    Toast.makeText(this, "Horario indisponivel!\n Tente outro.", Toast.LENGTH_LONG).show()
+                    showDialog("Atenção", "Horário indisponível! Tente outro.")
                 }
             },
             { error ->
                 isRequestInProgress = false
                 val errorMsg = when (error.networkResponse?.statusCode) {
                     400 -> "Parâmetros inválidos."
-                    401 -> "Horario indisponivel!\n Tente outro."
+                    401 -> "Horário indisponível! Tente outro."
                     500 -> "Erro interno do servidor."
                     else -> "Erro: ${error.toString()}"
                 }
-                Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
+                showDialog("Erro", errorMsg)
             },
             mapOf("Authorization" to "Bearer $token", "Content-Type" to "application/json")
         )
@@ -154,7 +158,7 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
             Request.Method.POST, url, jsonObject,
             { response ->
                 isRequestInProgress = false
-                Toast.makeText(this, "Reserva adicionada com sucesso!", Toast.LENGTH_LONG).show()
+                showDialog("Sucesso", "Reserva adicionada com sucesso!")
                 startActivity(Intent(this, ReservaConfirmadaActivity::class.java))
             },
             { error ->
@@ -165,9 +169,17 @@ class ConfirmReserveSelectedRestaurantActivity : AppCompatActivity() {
                     500 -> "Erro interno do servidor."
                     else -> "Erro: ${error.toString()}"
                 }
-                Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
+                showDialog("Erro", errorMsg)
             },
             mapOf("Authorization" to "Bearer $token", "Content-Type" to "application/json")
         )
+    }
+
+    private fun showDialog(title: String, message: String) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
+        builder.setMessage(message)
+        builder.setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+        builder.create().show()
     }
 }

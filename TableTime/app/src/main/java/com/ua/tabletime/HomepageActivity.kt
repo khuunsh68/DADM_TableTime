@@ -2,8 +2,11 @@ package com.ua.tabletime
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.SearchView
 import android.widget.TextView
 import android.widget.Toast
@@ -25,6 +28,8 @@ class HomepageActivity : AppCompatActivity() {
     private var restaurantList: List<Restaurant> = listOf()
     private lateinit var btnSearch: Button
     private lateinit var helloUser: TextView
+    private lateinit var frameProgressHome: FrameLayout
+    private lateinit var progressBarHome: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +41,8 @@ class HomepageActivity : AppCompatActivity() {
             insets
         }
 
+        progressBarHome = findViewById(R.id.progressBarHome)
+        frameProgressHome = findViewById(R.id.frameProgressHome)
         recyclerView = findViewById(R.id.recyclerViewRestaurants)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -46,11 +53,14 @@ class HomepageActivity : AppCompatActivity() {
                 putExtra("RESTAURANT_AVALIACAO", selectedRestaurant.avaliacao)
                 putExtra("RESTAURANT_IMAGE", selectedRestaurant.imageResource)
                 putExtra("RESTAURANT_CUISINE", selectedRestaurant.cuisineType)
+                putExtra("RESTAURANT_ENDERECO", selectedRestaurant.endereco)
             }
             startActivity(intent)
         }
         recyclerView.adapter = adapter
 
+        frameProgressHome.visibility = View.VISIBLE
+        progressBarHome.visibility = View.VISIBLE
         fetchRestaurantDataFromApi()
 
         btnProfilePage = findViewById(R.id.btnProfilePage)
@@ -99,13 +109,16 @@ class HomepageActivity : AppCompatActivity() {
                             name = restaurantJson.getString("nome"),
                             avaliacao = restaurantJson.getDouble("avaliacao"),
                             imageResource = restaurantJson.getString("imagem_url"),
-                            cuisineType = restaurantJson.getString("tipo_cozinha")
+                            cuisineType = restaurantJson.getString("tipo_cozinha"),
+                            endereco = restaurantJson.getString("endereco")
                         )
                         restaurants.add(restaurant)
                     }
                 }
                 restaurantList = restaurants
                 adapter.updateData(restaurantList)
+                frameProgressHome.visibility = View.GONE
+                progressBarHome.visibility = View.GONE
             },
             { error ->
                 Toast.makeText(this, "Failed to fetch restaurants: ${error.message}", Toast.LENGTH_LONG).show()

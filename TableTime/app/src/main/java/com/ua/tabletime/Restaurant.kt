@@ -17,6 +17,7 @@ data class Restaurant(
         imageResource: String,
         name: String,
         cuisineType: String,
-        avaliacao: Double
-    ) : this(id, name, "", Time(0), Time(0), avaliacao, imageResource, cuisineType)
+        avaliacao: Double,
+        endereco: String
+    ) : this(id, name, endereco, Time(0), Time(0), avaliacao, imageResource, cuisineType)
 }
