@@ -1,5 +1,5 @@
 import os
-from datetime import datetime as dt, timedelta
+from datetime import datetime, timedelta
 from re import I
 
 import psycopg2
@@ -197,7 +197,6 @@ def verificar_disponibilidade_reserva(id_restaurant, data_reserva, horario, quan
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                # Obtém a capacidade do restaurante
                 query_capacity = "SELECT capacidade_maxima FROM restaurante WHERE id=%s"
                 cur.execute(query_capacity, [id_restaurant])
                 capacidade_tuple = cur.fetchone()
@@ -205,13 +204,12 @@ def verificar_disponibilidade_reserva(id_restaurant, data_reserva, horario, quan
                     return {"error": "Restaurante não encontrado"}, 404
                 capacidade_restaurante = capacidade_tuple[0]
                 
-                horario_obj = dt.strptime(horario, '%H:%M:%S')
                 
-                # Converte o horário para o formato adequado e define o intervalo de uma hora
-                hora_inicio = horario_obj - dt.timedelta(hours=1)
-                hora_fim = hora_inicio + dt.timedelta(hours=1)
+                horario_obj = datetime.strptime(horario, '%H:%M:%S')
                 
-                # Consulta para verificar as reservas no intervalo de uma hora
+                hora_inicio = horario_obj - timedelta(hours=1)
+                hora_fim = hora_inicio + timedelta(hours=1)
+                
                 query = """
                     SELECT SUM(quantidade) FROM reserva
                     WHERE id_restaurante=%s AND data_reserva=%s AND horario BETWEEN %s AND %s
@@ -221,7 +219,6 @@ def verificar_disponibilidade_reserva(id_restaurant, data_reserva, horario, quan
                 soma_quantidades_tuple = cur.fetchone()
                 soma_quantidades = soma_quantidades_tuple[0] if soma_quantidades_tuple[0] is not None else 0
 
-                # Verifica se a nova quantidade de pessoas excede a capacidade do restaurante
                 if soma_quantidades + quantidade <= capacidade_restaurante:
                     return 0  # Disponível
                 else:

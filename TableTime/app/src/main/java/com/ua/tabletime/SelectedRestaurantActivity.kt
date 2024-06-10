@@ -130,24 +130,34 @@ class SelectedRestaurantActivity : AppCompatActivity() {
     private fun showDateTimePicker() {
         val calendar = Calendar.getInstance()
 
-        DatePickerDialog(this, { _, year, month, dayOfMonth ->
+        // Restrição para não permitir datas anteriores ao dia atual
+        val datePickerDialog = DatePickerDialog(this, { _, year, month, dayOfMonth ->
             calendar.set(Calendar.YEAR, year)
             calendar.set(Calendar.MONTH, month)
             calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            selectedDate = dateFormat.format(calendar.time)
+            val currentCalendar = Calendar.getInstance()
+            if (calendar.before(currentCalendar)) {
+                // Se a data selecionada for anterior ao dia atual, mostra um diálogo informando o erro
+                showDialog("Erro", "Por favor, selecione uma data igual ou posterior ao dia atual.")
+            } else {
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                selectedDate = dateFormat.format(calendar.time)
 
-            TimePickerDialog(this, { _, hourOfDay, minute ->
-                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
-                calendar.set(Calendar.MINUTE, minute)
+                TimePickerDialog(this, { _, hourOfDay, minute ->
+                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                    calendar.set(Calendar.MINUTE, minute)
 
-                selectedTime = "${hourOfDay.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00"
+                    selectedTime = "${hourOfDay.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00"
 
-                val selectedDateTime = "$selectedDate $selectedTime"
-                editTextDataHora.setText(selectedDateTime)
-            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show()
-        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
+                    val selectedDateTime = "$selectedDate $selectedTime"
+                    editTextDataHora.setText(selectedDateTime)
+                }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show()
+            }
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
+
+        datePickerDialog.datePicker.minDate = System.currentTimeMillis() // Define a data mínima como o dia atual
+        datePickerDialog.show()
     }
 
     private fun fetchVerificarDisponibilidadeFromApi(id_restaurante: Int, quantidade: Int) {

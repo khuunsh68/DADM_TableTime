@@ -21,8 +21,6 @@ SERVER_ERROR = 500
 
 app = Flask(__name__)
 
-# o nome deste ficheiro tem que ser index.py por causa do vercel.json (tambÃÂ©m podemos mudar o nome lÃÂ¡)
-
 @app.route('/', methods = ["GET", "POST"])
 def home():
     return "Welcome to API!"
@@ -36,14 +34,18 @@ def login():
     user = db.login(data['email'], data["password"])
 
     if user is None:
-        return jsonify({"error": "Check credentials"}), NOT_FOUND_CODE
+        return jsonify({"resposta": "Check credentials"}), OK_CODE
 
     token = jwt.encode(
         {'user_id': user["id"], 'exp': datetime.utcnow() + timedelta(minutes=10)}, "XXXX", 'HS256')
 
     user["token"] = token.decode('UTF-8')
     #user["token"] = token
-    return jsonify(user), OK_CODE
+    response = {
+        "user": user,
+        "resposta": "sucesso"
+    }
+    return jsonify(response), OK_CODE
 
 @app.route("/register", methods=['POST'])
 def register():
@@ -86,10 +88,10 @@ def auth_required(f):
     return decorated
 
 
-@app.route('/getUser/<int:user_id>', methods=['GET'])
+@app.route('/getUser', methods=['GET'])
 @auth_required
-def getUser(user_id):
-    user = db.get_user(user_id)
+def getUser():
+    user = db.get_user(request.user["id"])
     if user is None:
         return jsonify({"error": "User not found"}), NOT_FOUND_CODE
     return jsonify(user), OK_CODE
@@ -118,10 +120,10 @@ def get_name_restaurant(id_restaurant):
         return jsonify({"error": "No content"}), NO_CONTENT_CODE
     return jsonify(restaurant), OK_CODE
 
-@app.route('/get_all_reservas_from_user/<int:user_id>', methods=['GET'])
+@app.route('/get_all_reservas_from_user', methods=['GET'])
 @auth_required
-def get_all_reservas_from_user(user_id):
-    reserva = db.get_all_reservas_from_user(user_id)
+def get_all_reservas_from_user():
+    reserva = db.get_all_reservas_from_user(request.user["id"])
     if reserva is None:
         return jsonify({"error": "No content"}), NO_CONTENT_CODE
     return jsonify(reserva), OK_CODE
@@ -141,7 +143,7 @@ def verificar_disponibilidade_reserva():
     if reserva == 0:
         return jsonify({"disponibilidade": "horario disponivel"}), OK_CODE
     else: 
-        return jsonify({"disponibilidade": "horario indisponivel"}), UNAUTHORIZED_CODE
+        return jsonify({"disponibilidade": "horario indisponivel"}), OK_CODE
 
 
 @app.route("/addReserva", methods=['POST'])
